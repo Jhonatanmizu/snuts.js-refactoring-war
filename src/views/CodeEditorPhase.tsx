@@ -9,10 +9,12 @@ import {
   Sparkles,
   Timer,
   Volume2,
+  X,
   XCircle,
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { CodeEditor, SyntaxHighlightedCode } from '@/components/CodeEditor'
+import { PhaseProgress } from '@/components/PhaseProgress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -32,6 +34,7 @@ export function CodeEditorPhase() {
   const proceedFromCodeEditor = useGameStore((s) => s.proceedFromCodeEditor)
   const soundEnabled = useGameStore((s) => s.soundEnabled)
   const toggleSound = useGameStore((s) => s.toggleSound)
+  const goToMenu = useGameStore((s) => s.goToMenu)
 
   const level = levels[progress.currentLevel]
   const challenge = level.codeEditorChallenge
@@ -41,6 +44,7 @@ export function CodeEditorPhase() {
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS)
   const [showFix, setShowFix] = useState(false)
   const [xpFloat, setXpFloat] = useState<{ id: number; text: string; x: number; y: number }[]>([])
+  const [shaking, setShaking] = useState(false)
 
   const allFilled = challenge.blanks.every((_, i) => (codeEditor.typedAnswers[i]?.trim() ?? '') !== '')
 
@@ -54,13 +58,21 @@ export function CodeEditorPhase() {
   }, [allFilled, submitCodeEditorAnswer])
 
   useEffect(() => {
+    if (codeEditor.codeCorrect === false) {
+      setShaking(true)
+      setTimeout(() => setShaking(false), 400)
+    }
+  }, [codeEditor.codeCorrect])
+
+  useEffect(() => {
     if (codeEditor.codeCorrect !== null) return
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Enter' && allFilled) handleSubmit()
+      if (e.key === 'Escape') goToMenu()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [codeEditor.codeCorrect, allFilled, handleSubmit])
+  }, [codeEditor.codeCorrect, allFilled, handleSubmit, goToMenu])
 
   useEffect(() => {
     if (codeEditor.codeCorrect !== null) return
@@ -99,6 +111,7 @@ export function CodeEditorPhase() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
+          <PhaseProgress />
           <Badge className="bg-snuts-chip text-snuts-text border-snuts-border font-code">
             Level {String(progress.currentLevel + 1).padStart(2, '0')}
           </Badge>
@@ -170,6 +183,15 @@ export function CodeEditorPhase() {
           >
             <Volume2 className="w-4 h-4" />
             <span className="font-ui text-xs font-medium">{soundEnabled ? 'On' : 'Off'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={goToMenu}
+            className="flex items-center gap-1 rounded-xl border border-snuts-border bg-snuts-surface-3 px-3 py-2 transition-colors hover:text-snuts-text text-snuts-muted"
+            title="Back to Menu (Esc)"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -263,7 +285,9 @@ export function CodeEditorPhase() {
               )}
 
               {codeEditor.codeCorrect === false && (
-                <div className="rounded-xl bg-snuts-red/20 border border-snuts-red p-4 animate-fadeIn">
+                <div
+                  className={`rounded-xl bg-snuts-red/20 border border-snuts-red p-4 animate-fadeIn ${shaking ? 'animate-shake' : ''}`}
+                >
                   <div className="flex items-center gap-3">
                     <XCircle className="w-5 h-5 text-snuts-red flex-shrink-0" />
                     <div>

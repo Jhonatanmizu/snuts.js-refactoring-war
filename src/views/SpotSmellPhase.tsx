@@ -1,7 +1,8 @@
 import Prism from 'prismjs'
 import { useCallback, useEffect, useState } from 'react'
 import 'prismjs/components/prism-javascript'
-import { Volume2 } from 'lucide-react'
+import { Volume2, X } from 'lucide-react'
+import { PhaseProgress } from '@/components/PhaseProgress'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
@@ -18,6 +19,7 @@ export function SpotSmellPhase() {
   const proceedFromSpotSmell = useGameStore((s) => s.proceedFromSpotSmell)
   const soundEnabled = useGameStore((s) => s.soundEnabled)
   const toggleSound = useGameStore((s) => s.toggleSound)
+  const goToMenu = useGameStore((s) => s.goToMenu)
 
   const level = levels[progress.currentLevel]
   const challenge = level.spotSmellChallenge
@@ -48,10 +50,11 @@ export function SpotSmellPhase() {
       if (e.key === 'Enter' && selectedSmell && !showingAnswer) {
         handleSubmit()
       }
+      if (e.key === 'Escape') goToMenu()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [selectedSmell, showingAnswer, handleSubmit])
+  }, [selectedSmell, showingAnswer, handleSubmit, goToMenu])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -65,6 +68,7 @@ export function SpotSmellPhase() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
+          <PhaseProgress />
           <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
             <span className="text-xs">{rank.icon}</span>
             <span className="text-snuts-muted font-ui text-xs font-medium">{rank.title}</span>
@@ -91,6 +95,15 @@ export function SpotSmellPhase() {
             }`}
           >
             <Volume2 className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={goToMenu}
+            className="flex items-center gap-1 rounded-xl border border-snuts-border bg-snuts-surface-3 px-3 py-2 transition-colors hover:text-snuts-text text-snuts-muted"
+            title="Back to Menu (Esc)"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -146,7 +159,7 @@ export function SpotSmellPhase() {
                   showCorrect
                     ? 'bg-snuts-surface border-snuts-green'
                     : showWrong
-                      ? 'bg-snuts-surface border-snuts-red'
+                      ? 'bg-snuts-surface border-snuts-red animate-shake'
                       : isSelected
                         ? 'bg-snuts-surface-3 border-snuts-cyan'
                         : 'bg-snuts-code border-snuts-border hover:bg-snuts-surface'

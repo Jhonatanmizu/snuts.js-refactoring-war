@@ -98,6 +98,7 @@ interface GameState {
   toggleCodeTab: (tab: 'smelly' | 'fix') => void
   toggleSound: () => void
   clearNotification: () => void
+  goToMenu: () => void
   triggerGameOver: (reason: string) => void
   retryLevel: () => void
   reset: () => void
@@ -478,6 +479,18 @@ export const useGameStore = create<GameState>((set, get) => {
 
     clearNotification: () => {
       set({ notification: null })
+    },
+
+    goToMenu: () => {
+      const p = get().progress
+      saveProgress(p)
+      set({
+        progress: { ...p, currentPhase: 'welcome' },
+        selectedChoice: null,
+        selectedSmell: null,
+        showingAnswer: false,
+        gameOverReason: null,
+      })
     },
 
     triggerGameOver: (reason: string) => {

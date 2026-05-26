@@ -1,7 +1,8 @@
 import Prism from 'prismjs'
 import { useEffect } from 'react'
 import 'prismjs/components/prism-javascript'
-import { Volume2 } from 'lucide-react'
+import { Volume2, X } from 'lucide-react'
+import { PhaseProgress } from '@/components/PhaseProgress'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
@@ -15,6 +16,7 @@ export function FlashcardPhase() {
   const toggleCodeTab = useGameStore((s) => s.toggleCodeTab)
   const soundEnabled = useGameStore((s) => s.soundEnabled)
   const toggleSound = useGameStore((s) => s.toggleSound)
+  const goToMenu = useGameStore((s) => s.goToMenu)
   const notification = useGameStore((s) => s.notification)
   const clearNotification = useGameStore((s) => s.clearNotification)
 
@@ -30,10 +32,11 @@ export function FlashcardPhase() {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Enter') completeFlashcard()
+      if (e.key === 'Escape') goToMenu()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [completeFlashcard])
+  }, [completeFlashcard, goToMenu])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -62,6 +65,7 @@ export function FlashcardPhase() {
           <span className="text-snuts-muted font-ui text-sm">Learn Phase: {level.name}</span>
         </div>
         <div className="ml-auto flex items-center gap-3">
+          <PhaseProgress />
           <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
             <span className="text-xs">{rank.icon}</span>
             <span className="text-snuts-muted font-ui text-xs font-medium">{rank.title}</span>
@@ -109,6 +113,15 @@ export function FlashcardPhase() {
               ))}
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={goToMenu}
+            className="flex items-center gap-1 rounded-xl border border-snuts-border bg-snuts-surface-3 px-3 py-2 transition-colors hover:text-snuts-text text-snuts-muted"
+            title="Back to Menu (Esc)"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

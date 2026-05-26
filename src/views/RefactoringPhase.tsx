@@ -1,7 +1,8 @@
 import Prism from 'prismjs'
 import { useCallback, useEffect, useState } from 'react'
 import 'prismjs/components/prism-javascript'
-import { Volume2 } from 'lucide-react'
+import { Lightbulb, Volume2, X } from 'lucide-react'
+import { PhaseProgress } from '@/components/PhaseProgress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -19,6 +20,7 @@ export function RefactoringPhase() {
   const proceedFromRefactoring = useGameStore((s) => s.proceedFromRefactoring)
   const soundEnabled = useGameStore((s) => s.soundEnabled)
   const toggleSound = useGameStore((s) => s.toggleSound)
+  const goToMenu = useGameStore((s) => s.goToMenu)
   const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
 
   const level = levels[progress.currentLevel]
@@ -27,6 +29,7 @@ export function RefactoringPhase() {
   const xpProgress = getXpProgress(progress.xp)
 
   const [xpFloat, setXpFloat] = useState<{ id: number; text: string }[]>([])
+  const [showHints, setShowHints] = useState(false)
 
   useEffect(() => {
     Prism.highlightAll()
@@ -51,10 +54,11 @@ export function RefactoringPhase() {
       if (e.key === 'Enter' && selectedChoice && !showingAnswer) {
         handleSubmit()
       }
+      if (e.key === 'Escape') goToMenu()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [selectedChoice, showingAnswer, handleSubmit])
+  }, [selectedChoice, showingAnswer, handleSubmit, goToMenu])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -68,6 +72,7 @@ export function RefactoringPhase() {
         </div>
 
         <div className="ml-auto flex items-center gap-3">
+          <PhaseProgress />
           <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
             <span className="text-xs">{rank.icon}</span>
             <span className="text-snuts-muted font-ui text-xs font-medium">{rank.title}</span>
@@ -94,6 +99,15 @@ export function RefactoringPhase() {
             }`}
           >
             <Volume2 className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={goToMenu}
+            className="flex items-center gap-1 rounded-xl border border-snuts-border bg-snuts-surface-3 px-3 py-2 transition-colors hover:text-snuts-text text-snuts-muted"
+            title="Back to Menu (Esc)"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -141,6 +155,27 @@ export function RefactoringPhase() {
                 🔥 {streakMultiplier}x Streak Active
               </Badge>
             )}
+            {challenge.hints.length > 0 && !showingAnswer && (
+              <div className="flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setShowHints((s) => !s)}
+                  className="flex items-center gap-1.5 text-snuts-muted hover:text-snuts-cyan transition-colors text-xs"
+                >
+                  <Lightbulb className="w-3.5 h-3.5" />
+                  {showHints ? 'Hide Hints' : 'Show Hints'}
+                </button>
+                {showHints && (
+                  <div className="flex flex-col gap-1 rounded-lg bg-snuts-surface-3 border border-snuts-border p-3 animate-fadeIn">
+                    {challenge.hints.map((hint) => (
+                      <p key={hint} className="text-snuts-muted font-ui text-xs leading-relaxed">
+                        💡 {hint}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {challenge.choices.map((choice) => {
@@ -158,7 +193,7 @@ export function RefactoringPhase() {
                   showCorrect
                     ? 'border-snuts-green bg-snuts-surface'
                     : showWrong
-                      ? 'border-snuts-red bg-snuts-surface'
+                      ? 'border-snuts-red bg-snuts-surface animate-shake'
                       : isSelected
                         ? 'border-snuts-cyan bg-snuts-surface-3'
                         : 'border-snuts-border bg-snuts-code hover:bg-snuts-surface'
