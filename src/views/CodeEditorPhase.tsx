@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CodeEditor, SyntaxHighlightedCode } from '@/components/CodeEditor'
 import { levels } from '@/models/levels'
+import { getRank, getXpProgress } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
 import {
   Flame,
@@ -33,6 +34,8 @@ export function CodeEditorPhase() {
 
   const level = levels[progress.currentLevel]
   const challenge = level.codeEditorChallenge
+  const rank = getRank(progress.xp)
+  const xpProgress = getXpProgress(progress.xp)
 
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS)
   const [showFix, setShowFix] = useState(false)
@@ -91,16 +94,21 @@ export function CodeEditorPhase() {
             Level {String(progress.currentLevel + 1).padStart(2, '0')}
           </Badge>
 
+          <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
+            <span className="text-xs">{rank.icon}</span>
+            <span className="text-snuts-muted font-ui text-xs font-medium">{rank.title}</span>
+          </div>
+
           <div className="flex items-center gap-3 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
             <span className="text-snuts-muted font-ui text-xs font-medium">XP</span>
             <div className="w-24 h-2 rounded-full bg-snuts-chip overflow-hidden">
               <div
                 className="h-full rounded-full bg-snuts-purple transition-all duration-500"
-                style={{ width: `${Math.min(100, (progress.xp % 1000) / 10)}%` }}
+                style={{ width: `${xpProgress.percentage}%` }}
               />
             </div>
             <span className="text-snuts-text font-code text-xs font-semibold">
-              {progress.xp} / {(Math.floor(progress.xp / 1000) + 1) * 1000}
+              {xpProgress.percentage >= 100 ? `${progress.xp} MAX` : `${progress.xp} / ${xpProgress.needed}`}
             </span>
           </div>
 

@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
+import { getRank, getXpProgress } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
 
 export function SpotSmellPhase() {
@@ -17,10 +18,25 @@ export function SpotSmellPhase() {
 
   const level = levels[progress.currentLevel]
   const challenge = level.spotSmellChallenge
+  const rank = getRank(progress.xp)
+  const xpProgress = getXpProgress(progress.xp)
+
+  const [xpFloat, setXpFloat] = useState<{ id: number; text: string }[]>([])
 
   useEffect(() => {
     Prism.highlightAll()
   }, [])
+
+  const handleSubmit = () => {
+    const option = challenge.options.find((o) => o.id === selectedSmell)
+    const correct = option?.isCorrect ?? false
+    submitSmellAnswer()
+    if (correct) {
+      const id = Math.random()
+      setXpFloat((prev) => [...prev, { id, text: '+100 XP' }])
+      setTimeout(() => setXpFloat((prev) => prev.filter((f) => f.id !== id)), 1500)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -33,6 +49,24 @@ export function SpotSmellPhase() {
           <span className="text-snuts-muted font-ui text-sm">
             Spot the Smell — {level.name}
           </span>
+        </div>
+
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
+            <span className="text-xs">{rank.icon}</span>
+            <span className="text-snuts-muted font-ui text-xs font-medium">{rank.title}</span>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
+            <span className="text-snuts-muted font-ui text-xs font-medium">XP</span>
+            <div className="w-20 h-2 rounded-full bg-snuts-chip overflow-hidden">
+              <div
+                className="h-full rounded-full bg-snuts-purple transition-all duration-500"
+                style={{ width: `${xpProgress.percentage}%` }}
+              />
+            </div>
+            <span className="text-snuts-text font-code text-xs font-semibold">{progress.xp}</span>
+          </div>
         </div>
       </div>
 
@@ -145,7 +179,7 @@ export function SpotSmellPhase() {
           <div className="mt-auto">
             {!showingAnswer ? (
               <Button
-                onClick={submitSmellAnswer}
+                onClick={handleSubmit}
                 disabled={!selectedSmell}
                 className="w-full bg-snuts-cyan text-snuts-code font-semibold hover:bg-snuts-cyan/90 disabled:opacity-50"
               >
@@ -162,6 +196,16 @@ export function SpotSmellPhase() {
           </div>
         </div>
       </div>
+
+      {xpFloat.map((f) => (
+        <div
+          key={f.id}
+          className="fixed pointer-events-none animate-xpFloat font-code text-xl font-bold text-snuts-purple"
+          style={{ left: 920, top: 80 }}
+        >
+          {f.text}
+        </div>
+      ))}
     </div>
   )
 }

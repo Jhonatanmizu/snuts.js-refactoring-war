@@ -1,10 +1,14 @@
 import { Button } from '@/components/ui/button'
+import { getRank, getXpProgress, getNextRank } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
 
 export function WelcomeScreen() {
   const startGame = useGameStore((s) => s.startGame)
   const progress = useGameStore((s) => s.progress)
   const hasSavedData = progress.xp > 0 || progress.completedLevels.length > 0
+  const rank = getRank(progress.xp)
+  const xpProgress = getXpProgress(progress.xp)
+  const nextRank = getNextRank(progress.xp)
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-snuts-bg p-8">
@@ -22,6 +26,33 @@ export function WelcomeScreen() {
             Master 3 essential anti-patterns through interactive challenges.
           </p>
         </div>
+
+        {hasSavedData && (
+          <div className="flex flex-col gap-3 w-full rounded-xl bg-snuts-surface-3 border border-snuts-border p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{rank.icon}</span>
+                <span className="text-snuts-text font-ui text-sm font-semibold">{rank.title}</span>
+              </div>
+              {nextRank && (
+                <span className="text-snuts-muted font-ui text-xs">
+                  Next: {nextRank.icon} {nextRank.title}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-2 rounded-full bg-snuts-chip overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-snuts-purple transition-all duration-500"
+                  style={{ width: `${xpProgress.percentage}%` }}
+                />
+              </div>
+              <span className="text-snuts-text font-code text-xs font-semibold flex-shrink-0">
+                {progress.xp} XP
+              </span>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-3 w-full">
           <Button

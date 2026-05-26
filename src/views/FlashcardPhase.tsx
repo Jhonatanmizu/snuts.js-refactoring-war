@@ -4,6 +4,7 @@ import 'prismjs/components/prism-javascript'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
+import { getRank, getXpProgress } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
 
 export function FlashcardPhase() {
@@ -14,6 +15,8 @@ export function FlashcardPhase() {
 
   const level = levels[progress.currentLevel]
   const card = level.flashcard
+  const rank = getRank(progress.xp)
+  const xpProgress = getXpProgress(progress.xp)
 
   useEffect(() => {
     Prism.highlightAll()
@@ -31,23 +34,41 @@ export function FlashcardPhase() {
             Learn Phase: {level.name}
           </span>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="text-snuts-muted font-ui text-xs font-medium">
-            Level {progress.currentLevel + 1} of {levels.length}
-          </span>
-          <div className="flex gap-1">
-            {levels.map((_, i) => (
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
+            <span className="text-xs">{rank.icon}</span>
+            <span className="text-snuts-muted font-ui text-xs font-medium">{rank.title}</span>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
+            <span className="text-snuts-muted font-ui text-xs font-medium">XP</span>
+            <div className="w-20 h-2 rounded-full bg-snuts-chip overflow-hidden">
               <div
-                key={i}
-                className={`w-2 h-2 rounded-full ${
-                  i < progress.currentLevel
-                    ? 'bg-snuts-green'
-                    : i === progress.currentLevel
-                      ? 'bg-snuts-cyan'
-                      : 'bg-snuts-surface-2'
-                }`}
+                className="h-full rounded-full bg-snuts-purple transition-all duration-500"
+                style={{ width: `${xpProgress.percentage}%` }}
               />
-            ))}
+            </div>
+            <span className="text-snuts-text font-code text-xs font-semibold">{progress.xp}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-snuts-muted font-ui text-xs font-medium">
+              Level {progress.currentLevel + 1} of {levels.length}
+            </span>
+            <div className="flex gap-1">
+              {levels.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full ${
+                    i < progress.currentLevel
+                      ? 'bg-snuts-green'
+                      : i === progress.currentLevel
+                        ? 'bg-snuts-cyan'
+                        : 'bg-snuts-surface-2'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
