@@ -190,9 +190,15 @@ export function RefactoringPhase() {
                   </div>
                   <Badge
                     variant="secondary"
-                    className="flex-shrink-0 bg-snuts-surface-3 text-snuts-muted border-snuts-border"
+                    className={`flex-shrink-0 ${
+                      showingAnswer
+                        ? choice.isCorrect
+                          ? 'bg-snuts-green/20 text-snuts-green border-snuts-green'
+                          : 'bg-snuts-surface-3 text-snuts-muted border-snuts-border'
+                        : 'bg-snuts-surface-3 text-snuts-muted/50 border-snuts-border'
+                    }`}
                   >
-                    +{choice.xpReward} XP
+                    {showingAnswer ? `+${choice.xpReward} XP` : '? XP'}
                   </Badge>
                 </div>
 
@@ -207,18 +213,17 @@ export function RefactoringPhase() {
             )
           })}
 
-          {showingAnswer &&
-            challenge.choices.filter((c) => c.id !== selectedChoice || !c.isCorrect).some((c) => c.isCorrect) && (
-              <div className="rounded-xl border border-snuts-green bg-snuts-surface overflow-hidden">
-                <div className="flex items-center gap-3 px-4 py-2 bg-snuts-green/10 border-b border-snuts-green/30">
-                  <span className="text-snuts-green text-sm">✓</span>
-                  <span className="text-snuts-green font-ui text-xs font-semibold">Correct Answer</span>
-                </div>
-                <pre className="p-4 text-sm font-code leading-relaxed overflow-x-auto">
-                  <code className="language-javascript">{challenge.choices.find((c) => c.isCorrect)?.code}</code>
-                </pre>
+          {showingAnswer && selectedChoice && !challenge.choices.find((c) => c.id === selectedChoice)?.isCorrect && (
+            <div className="rounded-xl border border-snuts-green bg-snuts-surface overflow-hidden">
+              <div className="flex items-center gap-3 px-4 py-2 bg-snuts-green/10 border-b border-snuts-green/30">
+                <span className="text-snuts-green text-sm">✓</span>
+                <span className="text-snuts-green font-ui text-xs font-semibold">Correct Answer</span>
               </div>
-            )}
+              <pre className="p-4 text-sm font-code leading-relaxed overflow-x-auto">
+                <code className="language-javascript">{challenge.choices.find((c) => c.isCorrect)?.code}</code>
+              </pre>
+            </div>
+          )}
 
           {showingAnswer && (
             <div className="rounded-xl bg-snuts-surface-3 border border-snuts-border p-4">
