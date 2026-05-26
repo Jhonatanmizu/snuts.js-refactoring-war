@@ -11,7 +11,6 @@ import {
   Heart,
   Timer,
   Volume2,
-  Music,
   Lightbulb,
   CheckCircle2,
   XCircle,
@@ -31,6 +30,8 @@ export function CodeEditorPhase() {
   const submitCodeEditorAnswer = useGameStore((s) => s.submitCodeEditorAnswer)
   const useCodeEditorHint = useGameStore((s) => s.useCodeEditorHint)
   const proceedFromCodeEditor = useGameStore((s) => s.proceedFromCodeEditor)
+  const soundEnabled = useGameStore((s) => s.soundEnabled)
+  const toggleSound = useGameStore((s) => s.toggleSound)
 
   const level = levels[progress.currentLevel]
   const challenge = level.codeEditorChallenge
@@ -40,7 +41,6 @@ export function CodeEditorPhase() {
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS)
   const [showFix, setShowFix] = useState(false)
   const [xpFloat, setXpFloat] = useState<{ id: number; text: string; x: number; y: number }[]>([])
-  const [soundOn, setSoundOn] = useState(true)
 
   useEffect(() => {
     if (codeEditor.codeCorrect !== null) return
@@ -144,21 +144,17 @@ export function CodeEditorPhase() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 rounded-xl bg-snuts-surface-3 border border-snuts-border px-2 py-2">
-            <button
-              onClick={() => setSoundOn((s) => !s)}
-              className={`p-1 rounded ${soundOn ? 'text-snuts-accent' : 'text-snuts-muted'}`}
-            >
-              {soundOn ? <Music className="w-4 h-4" /> : <Music className="w-4 h-4" />}
-            </button>
-            <span className="text-snuts-muted/50 w-px h-4 bg-snuts-border" />
-            <button
-              onClick={() => setSoundOn((s) => !s)}
-              className={`p-1 rounded ${soundOn ? 'text-snuts-green' : 'text-snuts-muted'}`}
-            >
-              <Volume2 className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={toggleSound}
+            className={`flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
+              soundEnabled
+                ? 'bg-snuts-surface-3 border-snuts-border text-snuts-green'
+                : 'bg-snuts-surface-3 border-snuts-border text-snuts-muted/50'
+            }`}
+          >
+            <Volume2 className="w-4 h-4" />
+            <span className="font-ui text-xs font-medium">{soundEnabled ? 'On' : 'Off'}</span>
+          </button>
         </div>
       </div>
 

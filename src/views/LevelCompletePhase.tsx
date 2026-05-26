@@ -1,3 +1,4 @@
+import { Volume2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -9,6 +10,8 @@ export function LevelCompletePhase() {
   const progress = useGameStore((s) => s.progress)
   const continueToNextLevel = useGameStore((s) => s.continueToNextLevel)
   const reset = useGameStore((s) => s.reset)
+  const soundEnabled = useGameStore((s) => s.soundEnabled)
+  const toggleSound = useGameStore((s) => s.toggleSound)
   const rank = getRank(progress.xp)
   const xpProgress = getXpProgress(progress.xp)
   const nextRank = getNextRank(progress.xp)
@@ -16,7 +19,18 @@ export function LevelCompletePhase() {
   const isComplete = progress.currentLevel >= levels.length - 1
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-snuts-bg p-8">
+    <div className="flex items-center justify-center min-h-screen bg-snuts-bg p-8 relative">
+      <button
+        onClick={toggleSound}
+        className={`absolute top-4 right-4 flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
+          soundEnabled
+            ? 'bg-snuts-surface-3 border-snuts-border text-snuts-green'
+            : 'bg-snuts-surface-3 border-snuts-border text-snuts-muted/50'
+        }`}
+      >
+        <Volume2 className="w-4 h-4" />
+        <span className="font-ui text-xs font-medium">{soundEnabled ? 'On' : 'Off'}</span>
+      </button>
       <div className="flex flex-col items-center gap-8 max-w-lg text-center">
         {isComplete ? (
           <>

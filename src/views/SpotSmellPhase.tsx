@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
+import { Volume2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
@@ -15,6 +16,8 @@ export function SpotSmellPhase() {
   const selectSmell = useGameStore((s) => s.selectSmell)
   const submitSmellAnswer = useGameStore((s) => s.submitSmellAnswer)
   const proceedFromSpotSmell = useGameStore((s) => s.proceedFromSpotSmell)
+  const soundEnabled = useGameStore((s) => s.soundEnabled)
+  const toggleSound = useGameStore((s) => s.toggleSound)
 
   const level = levels[progress.currentLevel]
   const challenge = level.spotSmellChallenge
@@ -67,6 +70,17 @@ export function SpotSmellPhase() {
             </div>
             <span className="text-snuts-text font-code text-xs font-semibold">{progress.xp}</span>
           </div>
+
+          <button
+            onClick={toggleSound}
+            className={`flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
+              soundEnabled
+                ? 'bg-snuts-surface-3 border-snuts-border text-snuts-green'
+                : 'bg-snuts-surface-3 border-snuts-border text-snuts-muted/50'
+            }`}
+          >
+            <Volume2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

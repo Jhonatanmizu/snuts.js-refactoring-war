@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 import { badgeDefinitions } from '@/models/badges'
 import { levels } from '@/models/levels'
+import { playCorrect, playWrong, playLevelUp } from '@/lib/sound'
 import type { PlayerProgress } from '@/types/game'
 
 const STORAGE_KEY = 'snutsjs-game-progress'
@@ -58,6 +59,7 @@ interface GameState {
   showingAnswer: boolean
   currentSmellTab: 'smelly' | 'fix'
   codeEditor: CodeEditorState
+  soundEnabled: boolean
 
   startGame: () => void
   completeFlashcard: () => void
@@ -73,6 +75,7 @@ interface GameState {
   proceedFromCodeEditor: () => void
   continueToNextLevel: () => void
   toggleCodeTab: (tab: 'smelly' | 'fix') => void
+  toggleSound: () => void
   reset: () => void
 }
 
@@ -94,6 +97,7 @@ export const useGameStore = create<GameState>((set, get) => {
     showingAnswer: false,
     currentSmellTab: 'smelly',
     codeEditor: { ...defaultCodeEditor },
+    soundEnabled: true,
 
     startGame: () => {
       const updated: PlayerProgress = {
@@ -120,13 +124,18 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     submitSmellAnswer: () => {
-      const { progress, selectedSmell } = get()
+      const { progress, selectedSmell, soundEnabled } = get()
       if (!selectedSmell) return
 
       const level = levels[progress.currentLevel]
       const option = level.spotSmellChallenge.options.find((o) => o.id === selectedSmell)
       const correct = option?.isCorrect ?? false
       const newLives = correct ? progress.lives : Math.max(0, progress.lives - 1)
+
+      if (soundEnabled) {
+        if (correct) playCorrect()
+        else playWrong()
+      }
 
       const updated: PlayerProgress = {
         ...progress,
@@ -172,7 +181,7 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     submitRefactoringAnswer: () => {
-      const { progress, selectedChoice } = get()
+      const { progress, selectedChoice, soundEnabled } = get()
       if (!selectedChoice) return
 
       const level = levels[progress.currentLevel]
@@ -182,6 +191,11 @@ export const useGameStore = create<GameState>((set, get) => {
       const baseXp = correct ? (choice?.xpReward ?? 100) : 0
       const earned = Math.round(baseXp * streakMultiplier)
       const newLives = correct ? progress.lives : Math.max(0, progress.lives - 1)
+
+      if (soundEnabled) {
+        if (correct) playCorrect()
+        else playWrong()
+      }
 
       const updated: PlayerProgress = {
         ...progress,
@@ -200,7 +214,7 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     proceedFromRefactoring: () => {
-      const { progress, newBadges } = get()
+      const { progress, newBadges, soundEnabled } = get()
       const level = levels[progress.currentLevel]
       const updated: PlayerProgress = {
         ...progress,
@@ -209,6 +223,7 @@ export const useGameStore = create<GameState>((set, get) => {
         currentPhase: 'level-complete',
       }
       saveProgress(updated)
+      if (soundEnabled) playLevelUp()
       set({
         progress: updated,
         newBadges: [],
@@ -223,7 +238,7 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     submitCodeEditorAnswer: () => {
-      const { progress, codeEditor } = get()
+      const { progress, codeEditor, soundEnabled } = get()
       const level = levels[progress.currentLevel]
       const challenge = level.codeEditorChallenge
 
@@ -233,6 +248,11 @@ export const useGameStore = create<GameState>((set, get) => {
         const userAnswer = codeEditor.typedAnswers[i]?.trim() ?? ''
         return userAnswer === blank.expected
       })
+
+      if (soundEnabled) {
+        if (allCorrect) playCorrect()
+        else playWrong()
+      }
 
       const earned = allCorrect ? 200 : 0
       const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
@@ -302,7 +322,7 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     proceedFromCodeEditor: () => {
-      const { progress, newBadges } = get()
+      const { progress, newBadges, soundEnabled } = get()
       const level = levels[progress.currentLevel]
       const updated: PlayerProgress = {
         ...progress,
@@ -311,6 +331,7 @@ export const useGameStore = create<GameState>((set, get) => {
         currentPhase: 'level-complete',
       }
       saveProgress(updated)
+      if (soundEnabled) playLevelUp()
       set({
         progress: updated,
         newBadges: [],
@@ -364,6 +385,10 @@ export const useGameStore = create<GameState>((set, get) => {
 
     toggleCodeTab: (tab: 'smelly' | 'fix') => {
       set({ currentSmellTab: tab })
+    },
+
+    toggleSound: () => {
+      set((s) => ({ soundEnabled: !s.soundEnabled }))
     },
 
     reset: () => {

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
+import { Volume2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
@@ -12,6 +13,8 @@ export function FlashcardPhase() {
   const currentSmellTab = useGameStore((s) => s.currentSmellTab)
   const completeFlashcard = useGameStore((s) => s.completeFlashcard)
   const toggleCodeTab = useGameStore((s) => s.toggleCodeTab)
+  const soundEnabled = useGameStore((s) => s.soundEnabled)
+  const toggleSound = useGameStore((s) => s.toggleSound)
 
   const level = levels[progress.currentLevel]
   const card = level.flashcard
@@ -50,6 +53,17 @@ export function FlashcardPhase() {
             </div>
             <span className="text-snuts-text font-code text-xs font-semibold">{progress.xp}</span>
           </div>
+
+          <button
+            onClick={toggleSound}
+            className={`flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
+              soundEnabled
+                ? 'bg-snuts-surface-3 border-snuts-border text-snuts-green'
+                : 'bg-snuts-surface-3 border-snuts-border text-snuts-muted/50'
+            }`}
+          >
+            <Volume2 className="w-4 h-4" />
+          </button>
 
           <div className="flex items-center gap-2">
             <span className="text-snuts-muted font-ui text-xs font-medium">
