@@ -108,3 +108,22 @@ body {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.token.keyword { color: var(--color-snuts-cyan); }
+.token.string { color: var(--color-snuts-yellow); }
+.token.number { color: var(--color-snuts-purple); }
+.token.function { color: var(--color-snuts-green); }
+.token.operator { color: var(--color-snuts-muted); }
+.token.comment { color: var(--color-snuts-muted); font-style: italic; }
+.token.variable { color: var(--color-snuts-text); }
+.token.property { color: var(--color-snuts-accent); }
+.token.punctuation { color: var(--color-snuts-muted); }
+.token.builtin { color: var(--color-snuts-green); }
+.token.constant { color: var(--color-snuts-purple); }
+.token.class-name { color: var(--color-snuts-green); }
+.token.boolean { color: var(--color-snuts-purple); }
+.token.regex { color: var(--color-snuts-orange); }
+.token.parameter { color: var(--color-snuts-text); }
+.token.attr-value { color: var(--color-snuts-yellow); }
+.token.attr-name { color: var(--color-snuts-accent); }
+.token.tag { color: var(--color-snuts-red); }

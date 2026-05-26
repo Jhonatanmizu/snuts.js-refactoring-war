@@ -81,6 +81,7 @@ export interface Badge {
 export interface PlayerProgress {
   xp: number
   streak: number
+  lives: number
   hintsRemaining: number
   completedLevels: string[]
   unlockedBadges: string[]

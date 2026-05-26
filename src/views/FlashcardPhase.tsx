@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
@@ -11,6 +14,10 @@ export function FlashcardPhase() {
 
   const level = levels[progress.currentLevel]
   const card = level.flashcard
+
+  useEffect(() => {
+    Prism.highlightAll()
+  }, [currentSmellTab])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -94,8 +101,8 @@ export function FlashcardPhase() {
                     <span className="text-snuts-muted font-code text-xs">{card.fileName}</span>
                     <span className="text-snuts-cyan font-code text-xs">{card.language}</span>
                   </div>
-                  <pre className="p-4 text-sm font-code leading-relaxed text-snuts-text overflow-auto h-[calc(100%-40px)]">
-                    <code>
+                  <pre className="p-4 text-sm font-code leading-relaxed overflow-auto h-[calc(100%-40px)]">
+                    <code className="language-javascript">
                       {currentSmellTab === 'smelly' ? card.smellyCode : card.fixCode}
                     </code>
                   </pre>

@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
@@ -14,6 +17,10 @@ export function SpotSmellPhase() {
 
   const level = levels[progress.currentLevel]
   const challenge = level.spotSmellChallenge
+
+  useEffect(() => {
+    Prism.highlightAll()
+  }, [])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -41,8 +48,8 @@ export function SpotSmellPhase() {
               </div>
 
               <div className="flex-1 rounded-xl bg-snuts-code border border-snuts-border overflow-hidden">
-                <pre className="p-4 text-sm font-code leading-relaxed text-snuts-text overflow-auto h-full min-h-[300px]">
-                  <code>{challenge.codeSnippet}</code>
+                <pre className="p-4 text-sm font-code leading-relaxed overflow-auto h-full min-h-[300px]">
+                  <code className="language-javascript">{challenge.codeSnippet}</code>
                 </pre>
               </div>
             </CardContent>
@@ -50,9 +57,20 @@ export function SpotSmellPhase() {
         </div>
 
         <div className="w-[400px] flex flex-col gap-4">
-          <span className="text-snuts-muted font-ui text-xs font-semibold uppercase tracking-wide px-1">
-            Pick the smell
-          </span>
+          <div className="flex items-center justify-between px-1">
+            <span className="text-snuts-muted font-ui text-xs font-semibold uppercase tracking-wide">
+              Pick the smell
+            </span>
+            <div className="flex items-center gap-1 rounded-md bg-snuts-surface-3 border border-snuts-border px-2 py-1">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={`w-3 h-3 rounded-full ${i < progress.lives ? 'bg-snuts-red' : 'bg-snuts-muted/30'}`}
+                />
+              ))}
+              <span className="text-snuts-muted font-code text-xs ml-1">Lives</span>
+            </div>
+          </div>
 
           {challenge.options.map((option) => {
             const isSelected = selectedSmell === option.id

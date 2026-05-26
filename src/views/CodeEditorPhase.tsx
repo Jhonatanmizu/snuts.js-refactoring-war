@@ -52,7 +52,7 @@ export function CodeEditorPhase() {
   const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
   const timeLow = timeLeft <= 30
 
-  const lives = timeLeft <= 60 ? 2 : 3
+  const lives = progress.lives
 
   const handleSubmit = () => {
     submitCodeEditorAnswer()
@@ -122,7 +122,9 @@ export function CodeEditorPhase() {
             </span>
           </div>
 
-          <div className="flex items-center gap-1 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
+          <div className={`flex items-center gap-1 rounded-xl border px-3 py-2 ${
+            lives <= 1 ? 'bg-snuts-red/20 border-snuts-red animate-pulse' : 'bg-snuts-surface-3 border-snuts-border'
+          }`}>
             {[0, 1, 2].map((i) => (
               <Heart
                 key={i}

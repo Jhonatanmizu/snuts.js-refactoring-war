@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,6 +19,10 @@ export function RefactoringPhase() {
 
   const level = levels[progress.currentLevel]
   const challenge = level.refactoringChallenge
+
+  useEffect(() => {
+    Prism.highlightAll()
+  }, [selectedChoice, showingAnswer])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -48,8 +55,8 @@ export function RefactoringPhase() {
                   <span className="text-snuts-red text-sm">🐛</span>
                   <span className="text-snuts-text font-code text-xs font-medium">Smelly Code</span>
                 </div>
-                <pre className="p-4 text-sm font-code leading-relaxed text-snuts-text overflow-auto">
-                  <code>{challenge.smellyCode}</code>
+                <pre className="p-4 text-sm font-code leading-relaxed overflow-auto">
+                  <code className="language-javascript">{challenge.smellyCode}</code>
                 </pre>
               </div>
             </CardContent>
@@ -58,9 +65,19 @@ export function RefactoringPhase() {
 
         <div className="flex-1 flex flex-col gap-4">
           <div className="flex items-center justify-between px-1">
-            <span className="text-snuts-muted font-ui text-xs font-semibold uppercase tracking-wide">
-              Pick the correct refactor
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-snuts-muted font-ui text-xs font-semibold uppercase tracking-wide">
+                Pick the correct refactor
+              </span>
+              <div className="flex items-center gap-1 rounded-md bg-snuts-surface-3 border border-snuts-border px-2 py-1">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className={`w-3 h-3 rounded-full ${i < progress.lives ? 'bg-snuts-red' : 'bg-snuts-muted/30'}`}
+                  />
+                ))}
+              </div>
+            </div>
             {progress.streak >= 3 && (
               <Badge className="bg-snuts-yellow/20 text-snuts-yellow border-snuts-yellow font-code">
                 🔥 {streakMultiplier}x Streak Active
@@ -126,8 +143,8 @@ export function RefactoringPhase() {
 
                 {isSelected && (
                   <div className="border-t border-snuts-border">
-                    <pre className="p-4 text-sm font-code leading-relaxed text-snuts-text overflow-x-auto bg-snuts-code">
-                      <code>{choice.code}</code>
+                    <pre className="p-4 text-sm font-code leading-relaxed overflow-x-auto bg-snuts-code">
+                      <code className="language-javascript">{choice.code}</code>
                     </pre>
                   </div>
                 )}

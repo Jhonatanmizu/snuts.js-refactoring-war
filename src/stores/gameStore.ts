@@ -18,6 +18,7 @@ function defaultProgress(): PlayerProgress {
   return {
     xp: 0,
     streak: 0,
+    lives: 3,
     hintsRemaining: 3,
     completedLevels: [],
     unlockedBadges: [],
@@ -97,6 +98,7 @@ export const useGameStore = create<GameState>((set, get) => {
     startGame: () => {
       const updated: PlayerProgress = {
         ...get().progress,
+        lives: 3,
         currentPhase: 'flashcard',
       }
       saveProgress(updated)
@@ -124,21 +126,22 @@ export const useGameStore = create<GameState>((set, get) => {
       const level = levels[progress.currentLevel]
       const option = level.spotSmellChallenge.options.find((o) => o.id === selectedSmell)
       const correct = option?.isCorrect ?? false
+      const newLives = correct ? progress.lives : Math.max(0, progress.lives - 1)
 
       const updated: PlayerProgress = {
         ...progress,
         xp: correct ? progress.xp + 100 : progress.xp,
         streak: correct ? progress.streak + 1 : 0,
+        lives: newLives,
         spotSmellCorrect: correct ? progress.spotSmellCorrect + 1 : progress.spotSmellCorrect,
       }
       saveProgress(updated)
 
       const newBadges = checkBadges(updated)
-      set({
-        progress: updated,
-        newBadges,
-        showingAnswer: true,
-      })
+      const next = newLives <= 0
+        ? { progress: { ...updated, lives: 3, currentPhase: 'flashcard' as const }, newBadges: [] }
+        : { progress: updated, newBadges, showingAnswer: true }
+      set(next)
     },
 
     proceedFromSpotSmell: () => {
@@ -178,21 +181,22 @@ export const useGameStore = create<GameState>((set, get) => {
       const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
       const baseXp = correct ? (choice?.xpReward ?? 100) : 0
       const earned = Math.round(baseXp * streakMultiplier)
+      const newLives = correct ? progress.lives : Math.max(0, progress.lives - 1)
 
       const updated: PlayerProgress = {
         ...progress,
         xp: progress.xp + earned,
         streak: correct ? progress.streak + 1 : 0,
+        lives: newLives,
         refactoringCorrect: correct ? progress.refactoringCorrect + 1 : progress.refactoringCorrect,
       }
       saveProgress(updated)
 
       const newBadges = checkBadges(updated)
-      set({
-        progress: updated,
-        newBadges,
-        showingAnswer: true,
-      })
+      const next = newLives <= 0
+        ? { progress: { ...updated, lives: 3, currentPhase: 'flashcard' as const }, newBadges: [] }
+        : { progress: updated, newBadges, showingAnswer: true }
+      set(next)
     },
 
     proceedFromRefactoring: () => {
@@ -233,11 +237,13 @@ export const useGameStore = create<GameState>((set, get) => {
       const earned = allCorrect ? 200 : 0
       const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
       const totalXp = Math.round(earned * streakMultiplier)
+      const newLives = allCorrect ? progress.lives : Math.max(0, progress.lives - 1)
 
       const updated: PlayerProgress = {
         ...progress,
         xp: progress.xp + totalXp,
         streak: allCorrect ? progress.streak + 1 : 0,
+        lives: newLives,
         codeEditorCorrect: allCorrect ? progress.codeEditorCorrect + 1 : progress.codeEditorCorrect,
       }
       saveProgress(updated)
@@ -245,15 +251,27 @@ export const useGameStore = create<GameState>((set, get) => {
       const newBadges = checkBadges(updated)
 
       setTimeout(() => {
-        set({
-          progress: updated,
-          newBadges,
-          codeEditor: {
-            ...codeEditor,
-            checkingCode: false,
-            codeCorrect: allCorrect,
-          },
-        })
+        if (newLives <= 0) {
+          set({
+            progress: { ...updated, lives: 3, currentPhase: 'flashcard' },
+            newBadges: [],
+            codeEditor: {
+              ...codeEditor,
+              checkingCode: false,
+              codeCorrect: allCorrect,
+            },
+          })
+        } else {
+          set({
+            progress: updated,
+            newBadges,
+            codeEditor: {
+              ...codeEditor,
+              checkingCode: false,
+              codeCorrect: allCorrect,
+            },
+          })
+        }
       }, 800)
     },
 
@@ -306,6 +324,7 @@ export const useGameStore = create<GameState>((set, get) => {
       if (nextLevel < levels.length) {
         const updated: PlayerProgress = {
           ...progress,
+          lives: 3,
           currentLevel: nextLevel,
           currentPhase: 'flashcard',
         }

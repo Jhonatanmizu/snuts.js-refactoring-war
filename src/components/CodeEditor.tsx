@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
 import type { CodeLine } from '@/types/game'
 
 interface CodeEditorProps {
@@ -14,7 +16,7 @@ interface CodeEditorProps {
   className?: string
 }
 
-const tokenColors: Record<string, string> = {
+const prismTokenMap: Record<string, string> = {
   keyword: 'text-snuts-cyan',
   string: 'text-snuts-yellow',
   number: 'text-snuts-purple',
@@ -24,48 +26,44 @@ const tokenColors: Record<string, string> = {
   variable: 'text-snuts-text',
   property: 'text-snuts-accent',
   punctuation: 'text-snuts-muted',
+  builtin: 'text-snuts-green',
+  constant: 'text-snuts-purple',
+  'class-name': 'text-snuts-green',
+  boolean: 'text-snuts-purple',
+  regex: 'text-snuts-orange',
+  parameter: 'text-snuts-text',
+  'attr-value': 'text-snuts-yellow',
+  'attr-name': 'text-snuts-accent',
+  tag: 'text-snuts-red',
 }
 
 function simpleHighlight(line: string): { text: string; className: string }[] {
   const tokens: { text: string; className: string }[] = []
-  const regex = /(\/\/.*|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*`|`(?:[^`\\]|\\.)*`|\b(const|let|var|function|return|test|describe|it|expect|async|await|import|export|from|new|class|if|else|for|of|in|typeof|instanceof)\b|\b(\d+(?:\.\d+)?)\b|([{}()[\];,.:]|=>|===|!==|>=|<=|&&|\|\||[=+\-*/<>!]))/g
 
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-
-  while ((match = regex.exec(line)) !== null) {
-    if (match.index > lastIndex) {
-      tokens.push({
-        text: line.slice(lastIndex, match.index),
-        className: 'text-snuts-text',
-      })
-    }
-
-    if (match[1]) {
-      tokens.push({ text: match[1], className: tokenColors.comment })
-    } else if (match[2]) {
-      tokens.push({ text: match[2], className: tokenColors.keyword })
-    } else if (match[3]) {
-      tokens.push({ text: match[3], className: tokenColors.number })
-    } else if (match[4]) {
-      const punc = match[4]
-      if (punc === '(' || punc === ')' || punc === '{' || punc === '}' || punc === '[' || punc === ']' || punc === ';' || punc === ',' || punc === '.') {
-        tokens.push({ text: punc, className: tokenColors.punctuation })
+  function walk(t: string | Prism.Token) {
+    if (typeof t === 'string') {
+      if (tokens.length > 0 && tokens[tokens.length - 1].className === 'text-snuts-text') {
+        tokens[tokens.length - 1].text += t
       } else {
-        tokens.push({ text: punc, className: tokenColors.operator })
+        tokens.push({ text: t, className: 'text-snuts-text' })
       }
-    } else if (match[0].startsWith("'") || match[0].startsWith('"') || match[0].startsWith('`')) {
-      tokens.push({ text: match[0], className: tokenColors.string })
+    } else {
+      const className = prismTokenMap[t.type] || 'text-snuts-text'
+      if (typeof t.content === 'string') {
+        tokens.push({ text: t.content, className })
+      } else if (Array.isArray(t.content)) {
+        t.content.forEach(walk)
+      } else {
+        walk(t.content)
+      }
     }
-
-    lastIndex = match.index + match[0].length
   }
 
-  if (lastIndex < line.length) {
-    tokens.push({
-      text: line.slice(lastIndex),
-      className: 'text-snuts-text',
-    })
+  try {
+    const highlighted = Prism.tokenize(line, Prism.languages.javascript)
+    highlighted.forEach(walk)
+  } catch {
+    return [{ text: line, className: 'text-snuts-text' }]
   }
 
   return tokens.length > 0 ? tokens : [{ text: line, className: 'text-snuts-text' }]
