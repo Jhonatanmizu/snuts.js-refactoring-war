@@ -33,13 +33,15 @@ export function SpotSmellPhase() {
   const handleSubmit = useCallback(() => {
     const option = challenge.options.find((o) => o.id === selectedSmell)
     const correct = option?.isCorrect ?? false
+    const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
+    const earned = Math.round(100 * streakMultiplier)
     submitSmellAnswer()
     if (correct) {
       const id = Math.random()
-      setXpFloat((prev) => [...prev, { id, text: '+100 XP' }])
+      setXpFloat((prev) => [...prev, { id, text: `+${earned} XP` }])
       setTimeout(() => setXpFloat((prev) => prev.filter((f) => f.id !== id)), 1500)
     }
-  }, [selectedSmell, submitSmellAnswer, challenge])
+  }, [selectedSmell, submitSmellAnswer, challenge, progress.streak])
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -212,7 +214,7 @@ export function SpotSmellPhase() {
                 onClick={proceedFromSpotSmell}
                 className="w-full bg-snuts-green text-snuts-code font-semibold hover:bg-snuts-green/90"
               >
-                Continue to Code Editor →
+                Continue to Refactoring Ref →
               </Button>
             )}
           </div>

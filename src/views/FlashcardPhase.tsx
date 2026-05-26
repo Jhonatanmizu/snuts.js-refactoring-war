@@ -25,7 +25,7 @@ export function FlashcardPhase() {
 
   useEffect(() => {
     Prism.highlightAll()
-  }, [])
+  })
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {

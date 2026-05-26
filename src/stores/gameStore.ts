@@ -180,11 +180,13 @@ export const useGameStore = create<GameState>((set, get) => {
       const option = level.spotSmellChallenge.options.find((o) => o.id === selectedSmell)
       const correct = option?.isCorrect ?? false
       const newLives = correct ? progress.lives : Math.max(0, progress.lives - 1)
+      const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
+      const earned = Math.round(100 * streakMultiplier)
       const record: AnswerRecord = {
         phase: 'spot-smell',
         levelIndex: progress.currentLevel,
         correct,
-        xp: correct ? 100 : 0,
+        xp: correct ? earned : 0,
       }
 
       if (soundEnabled) {
@@ -194,7 +196,7 @@ export const useGameStore = create<GameState>((set, get) => {
 
       const updated: PlayerProgress = {
         ...progress,
-        xp: correct ? progress.xp + 100 : progress.xp,
+        xp: correct ? progress.xp + earned : progress.xp,
         streak: correct ? progress.streak + 1 : 0,
         lives: newLives,
         spotSmellCorrect: correct ? progress.spotSmellCorrect + 1 : progress.spotSmellCorrect,
