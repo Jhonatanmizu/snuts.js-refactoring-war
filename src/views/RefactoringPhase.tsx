@@ -32,6 +32,16 @@ export function RefactoringPhase() {
     Prism.highlightAll()
   }, [selectedChoice, showingAnswer])
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && selectedChoice && !showingAnswer) {
+        handleSubmit()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [selectedChoice, showingAnswer])
+
   const handleSubmit = () => {
     const choice = challenge.choices.find((c) => c.id === selectedChoice)
     const correct = choice?.isCorrect ?? false

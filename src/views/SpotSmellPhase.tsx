@@ -30,6 +30,16 @@ export function SpotSmellPhase() {
     Prism.highlightAll()
   }, [])
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && selectedSmell && !showingAnswer) {
+        handleSubmit()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [selectedSmell, showingAnswer])
+
   const handleSubmit = () => {
     const option = challenge.options.find((o) => o.id === selectedSmell)
     const correct = option?.isCorrect ?? false

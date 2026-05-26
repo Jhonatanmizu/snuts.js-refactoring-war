@@ -3,6 +3,10 @@ import { create } from 'zustand'
 import { badgeDefinitions } from '@/models/badges'
 import { levels } from '@/models/levels'
 import { playCorrect, playWrong, playLevelUp } from '@/lib/sound'
+
+function initAudio() {
+  try { new (window.AudioContext || (window as any).webkitAudioContext)() } catch {}
+}
 import type { PlayerProgress } from '@/types/game'
 
 const STORAGE_KEY = 'snutsjs-game-progress'
@@ -60,6 +64,7 @@ interface GameState {
   currentSmellTab: 'smelly' | 'fix'
   codeEditor: CodeEditorState
   soundEnabled: boolean
+  notification: string | null
 
   startGame: () => void
   completeFlashcard: () => void
@@ -76,6 +81,7 @@ interface GameState {
   continueToNextLevel: () => void
   toggleCodeTab: (tab: 'smelly' | 'fix') => void
   toggleSound: () => void
+  clearNotification: () => void
   reset: () => void
 }
 
@@ -98,8 +104,10 @@ export const useGameStore = create<GameState>((set, get) => {
     currentSmellTab: 'smelly',
     codeEditor: { ...defaultCodeEditor },
     soundEnabled: true,
+    notification: null,
 
     startGame: () => {
+      initAudio()
       const updated: PlayerProgress = {
         ...get().progress,
         lives: 3,
@@ -116,7 +124,7 @@ export const useGameStore = create<GameState>((set, get) => {
         currentPhase: 'spot-smell',
       }
       saveProgress(updated)
-      set({ progress: updated, showingAnswer: false, selectedSmell: null })
+      set({ progress: updated, showingAnswer: false, selectedSmell: null, notification: null })
     },
 
     selectSmell: (id: string) => {
@@ -147,19 +155,23 @@ export const useGameStore = create<GameState>((set, get) => {
       saveProgress(updated)
 
       const newBadges = checkBadges(updated)
-      const next = newLives <= 0
-        ? { progress: { ...updated, lives: 3, currentPhase: 'flashcard' as const }, newBadges: [] }
-        : { progress: updated, newBadges, showingAnswer: true }
-      set(next)
+      if (newLives <= 0) {
+        set({
+          progress: { ...updated, lives: 3, currentPhase: 'flashcard' },
+          newBadges: [],
+          notification: 'You ran out of lives! Review the flashcard and try again.',
+        })
+      } else {
+        set({ progress: updated, newBadges, showingAnswer: true, notification: null })
+      }
     },
 
     proceedFromSpotSmell: () => {
       const { progress, newBadges } = get()
-      const level = levels[progress.currentLevel]
       const updated: PlayerProgress = {
         ...progress,
         unlockedBadges: [...progress.unlockedBadges, ...newBadges],
-        currentPhase: 'code-editor',
+        currentPhase: 'refactoring-ref',
       }
       saveProgress(updated)
       set({
@@ -167,12 +179,7 @@ export const useGameStore = create<GameState>((set, get) => {
         newBadges: [],
         selectedChoice: null,
         showingAnswer: false,
-        codeEditor: {
-          typedAnswers: level.codeEditorChallenge.blanks.map(() => ''),
-          checkingCode: false,
-          codeCorrect: null,
-          usedHint: false,
-        },
+        notification: null,
       })
     },
 
@@ -207,26 +214,37 @@ export const useGameStore = create<GameState>((set, get) => {
       saveProgress(updated)
 
       const newBadges = checkBadges(updated)
-      const next = newLives <= 0
-        ? { progress: { ...updated, lives: 3, currentPhase: 'flashcard' as const }, newBadges: [] }
-        : { progress: updated, newBadges, showingAnswer: true }
-      set(next)
+      if (newLives <= 0) {
+        set({
+          progress: { ...updated, lives: 3, currentPhase: 'flashcard' },
+          newBadges: [],
+          notification: 'You ran out of lives! Review the flashcard and try again.',
+        })
+      } else {
+        set({ progress: updated, newBadges, showingAnswer: true, notification: null })
+      }
     },
 
     proceedFromRefactoring: () => {
-      const { progress, newBadges, soundEnabled } = get()
-      const level = levels[progress.currentLevel]
+      const { progress, newBadges } = get()
       const updated: PlayerProgress = {
         ...progress,
-        completedLevels: [...progress.completedLevels, level.id],
         unlockedBadges: [...progress.unlockedBadges, ...newBadges],
-        currentPhase: 'level-complete',
+        currentPhase: 'code-editor',
       }
       saveProgress(updated)
-      if (soundEnabled) playLevelUp()
       set({
         progress: updated,
         newBadges: [],
+        selectedChoice: null,
+        showingAnswer: false,
+        notification: null,
+        codeEditor: {
+          typedAnswers: levels[progress.currentLevel].codeEditorChallenge.blanks.map(() => ''),
+          checkingCode: false,
+          codeCorrect: null,
+          usedHint: false,
+        },
       })
     },
 
@@ -275,6 +293,7 @@ export const useGameStore = create<GameState>((set, get) => {
           set({
             progress: { ...updated, lives: 3, currentPhase: 'flashcard' },
             newBadges: [],
+            notification: 'You ran out of lives! Review the flashcard and try again.',
             codeEditor: {
               ...codeEditor,
               checkingCode: false,
@@ -285,6 +304,7 @@ export const useGameStore = create<GameState>((set, get) => {
           set({
             progress: updated,
             newBadges,
+            notification: null,
             codeEditor: {
               ...codeEditor,
               checkingCode: false,
@@ -352,6 +372,7 @@ export const useGameStore = create<GameState>((set, get) => {
         saveProgress(updated)
         set({
           progress: updated,
+          notification: null,
           selectedChoice: null,
           selectedSmell: null,
           showingAnswer: false,
@@ -389,6 +410,10 @@ export const useGameStore = create<GameState>((set, get) => {
 
     toggleSound: () => {
       set((s) => ({ soundEnabled: !s.soundEnabled }))
+    },
+
+    clearNotification: () => {
+      set({ notification: null })
     },
 
     reset: () => {

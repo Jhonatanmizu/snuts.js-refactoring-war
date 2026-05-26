@@ -42,13 +42,40 @@ export function CodeEditorPhase() {
   const [showFix, setShowFix] = useState(false)
   const [xpFloat, setXpFloat] = useState<{ id: number; text: string; x: number; y: number }[]>([])
 
+  const allFilled = challenge.blanks.every((_, i) => (codeEditor.typedAnswers[i]?.trim() ?? '') !== '')
+
+  const handleSubmit = () => {
+    submitCodeEditorAnswer()
+    if (allFilled) {
+      const id = Math.random()
+      setXpFloat((prev) => [...prev, { id, text: '+200 XP', x: 920, y: 80 }])
+      setTimeout(() => setXpFloat((prev) => prev.filter((f) => f.id !== id)), 1500)
+    }
+  }
+
+  useEffect(() => {
+    if (codeEditor.codeCorrect !== null) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && allFilled) handleSubmit()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [codeEditor.codeCorrect, allFilled])
+
   useEffect(() => {
     if (codeEditor.codeCorrect !== null) return
     const timer = setInterval(() => {
-      setTimeLeft((prev) => Math.max(0, prev - 1))
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          if (allFilled) handleSubmit()
+          return 0
+        }
+        return prev - 1
+      })
     }, 1000)
     return () => clearInterval(timer)
-  }, [codeEditor.codeCorrect])
+  }, [codeEditor.codeCorrect, allFilled])
 
   const minutes = Math.floor(timeLeft / 60)
   const seconds = timeLeft % 60
@@ -57,22 +84,6 @@ export function CodeEditorPhase() {
 
   const lives = progress.lives
 
-  const handleSubmit = () => {
-    submitCodeEditorAnswer()
-    const id = Math.random()
-    const allFilled = challenge.blanks.every((_, i) => (codeEditor.typedAnswers[i]?.trim() ?? '') !== '')
-    if (allFilled) {
-      setXpFloat((prev) => [
-        ...prev,
-        { id, text: '+200 XP', x: 920, y: 80 },
-      ])
-      setTimeout(() => {
-        setXpFloat((prev) => prev.filter((f) => f.id !== id))
-      }, 1500)
-    }
-  }
-
-  const allFilled = challenge.blanks.every((_, i) => (codeEditor.typedAnswers[i]?.trim() ?? '') !== '')
   const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
   const hintsLeft = progress.hintsRemaining
 

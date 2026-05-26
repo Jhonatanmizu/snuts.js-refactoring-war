@@ -15,6 +15,8 @@ export function FlashcardPhase() {
   const toggleCodeTab = useGameStore((s) => s.toggleCodeTab)
   const soundEnabled = useGameStore((s) => s.soundEnabled)
   const toggleSound = useGameStore((s) => s.toggleSound)
+  const notification = useGameStore((s) => s.notification)
+  const clearNotification = useGameStore((s) => s.clearNotification)
 
   const level = levels[progress.currentLevel]
   const card = level.flashcard
@@ -25,8 +27,28 @@ export function FlashcardPhase() {
     Prism.highlightAll()
   }, [currentSmellTab])
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter') completeFlashcard()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
+      {notification && (
+        <div className="rounded-xl bg-snuts-red/20 border border-snuts-red p-4 animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">💀</span>
+            <p className="text-snuts-red font-ui text-sm flex-1">{notification}</p>
+            <button onClick={clearNotification} className="text-snuts-muted hover:text-snuts-text text-xs">
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-[46px] h-[46px] rounded-lg bg-snuts-surface-2 border border-snuts-cyan">
           <span className="text-snuts-cyan font-code text-xl font-bold">S.</span>
