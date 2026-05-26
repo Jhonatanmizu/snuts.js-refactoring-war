@@ -8,6 +8,7 @@ export type GamePhase =
   | 'code-editor'
   | 'level-complete'
   | 'flashcard-lab'
+  | 'game-over'
 
 export interface AnswerRecord {
   phase: 'spot-smell' | 'refactoring-ref' | 'code-editor'

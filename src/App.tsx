@@ -2,6 +2,7 @@ import { useGameStore } from '@/stores/gameStore'
 import { CodeEditorPhase } from '@/views/CodeEditorPhase'
 import { FlashcardLabPhase } from '@/views/FlashcardLabPhase'
 import { FlashcardPhase } from '@/views/FlashcardPhase'
+import { GameOverScreen } from '@/views/GameOverScreen'
 import { LevelCompletePhase } from '@/views/LevelCompletePhase'
 import { RefactoringPhase } from '@/views/RefactoringPhase'
 import { SpotSmellPhase } from '@/views/SpotSmellPhase'
@@ -25,6 +26,8 @@ function App() {
       return <LevelCompletePhase />
     case 'flashcard-lab':
       return <FlashcardLabPhase />
+    case 'game-over':
+      return <GameOverScreen />
     default:
       return <WelcomeScreen />
   }

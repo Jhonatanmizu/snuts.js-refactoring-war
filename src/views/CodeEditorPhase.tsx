@@ -68,14 +68,14 @@ export function CodeEditorPhase() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          if (allFilled) handleSubmit()
+          handleSubmit()
           return 0
         }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [codeEditor.codeCorrect, allFilled, handleSubmit])
+  }, [codeEditor.codeCorrect, handleSubmit])
 
   const minutes = Math.floor(timeLeft / 60)
   const seconds = timeLeft % 60

@@ -30,7 +30,7 @@ export function RefactoringPhase() {
 
   useEffect(() => {
     Prism.highlightAll()
-  }, [])
+  })
 
   const handleSubmit = useCallback(() => {
     const choice = challenge.choices.find((c) => c.id === selectedChoice)
@@ -206,6 +206,19 @@ export function RefactoringPhase() {
               </button>
             )
           })}
+
+          {showingAnswer &&
+            challenge.choices.filter((c) => c.id !== selectedChoice || !c.isCorrect).some((c) => c.isCorrect) && (
+              <div className="rounded-xl border border-snuts-green bg-snuts-surface overflow-hidden">
+                <div className="flex items-center gap-3 px-4 py-2 bg-snuts-green/10 border-b border-snuts-green/30">
+                  <span className="text-snuts-green text-sm">✓</span>
+                  <span className="text-snuts-green font-ui text-xs font-semibold">Correct Answer</span>
+                </div>
+                <pre className="p-4 text-sm font-code leading-relaxed overflow-x-auto">
+                  <code className="language-javascript">{challenge.choices.find((c) => c.isCorrect)?.code}</code>
+                </pre>
+              </div>
+            )}
 
           {showingAnswer && (
             <div className="rounded-xl bg-snuts-surface-3 border border-snuts-border p-4">

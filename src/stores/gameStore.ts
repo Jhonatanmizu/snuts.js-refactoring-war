@@ -77,6 +77,7 @@ interface GameState {
   notification: string | null
   gameMode: GameMode
   currentLabCard: number
+  gameOverReason: string | null
 
   setGameMode: (mode: GameMode) => void
   startGame: () => void
@@ -97,6 +98,8 @@ interface GameState {
   toggleCodeTab: (tab: 'smelly' | 'fix') => void
   toggleSound: () => void
   clearNotification: () => void
+  triggerGameOver: (reason: string) => void
+  retryLevel: () => void
   reset: () => void
 }
 
@@ -122,6 +125,7 @@ export const useGameStore = create<GameState>((set, get) => {
     notification: null,
     gameMode: 'full-game',
     currentLabCard: 0,
+    gameOverReason: null,
 
     setGameMode: (mode: GameMode) => {
       set({ gameMode: mode })
@@ -201,9 +205,9 @@ export const useGameStore = create<GameState>((set, get) => {
       const newBadges = checkBadges(updated)
       if (newLives <= 0) {
         set({
-          progress: { ...updated, lives: 3, currentPhase: 'flashcard' },
+          progress: { ...updated, currentPhase: 'game-over' },
           newBadges: [],
-          notification: 'You ran out of lives! Review the flashcard and try again.',
+          gameOverReason: 'You ran out of lives! The tests got the better of you.',
         })
       } else {
         set({ progress: updated, newBadges, showingAnswer: true, notification: null })
@@ -267,9 +271,9 @@ export const useGameStore = create<GameState>((set, get) => {
       const newBadges = checkBadges(updated)
       if (newLives <= 0) {
         set({
-          progress: { ...updated, lives: 3, currentPhase: 'flashcard' },
+          progress: { ...updated, currentPhase: 'game-over' },
           newBadges: [],
-          notification: 'You ran out of lives! Review the flashcard and try again.',
+          gameOverReason: 'You ran out of lives! The tests got the better of you.',
         })
       } else {
         set({ progress: updated, newBadges, showingAnswer: true, notification: null })
@@ -349,9 +353,9 @@ export const useGameStore = create<GameState>((set, get) => {
       setTimeout(() => {
         if (newLives <= 0) {
           set({
-            progress: { ...updated, lives: 3, currentPhase: 'flashcard' },
+            progress: { ...updated, currentPhase: 'game-over' },
             newBadges: [],
-            notification: 'You ran out of lives! Review the flashcard and try again.',
+            gameOverReason: 'You ran out of lives! The tests got the better of you.',
             codeEditor: {
               ...codeEditor,
               checkingCode: false,
@@ -472,6 +476,39 @@ export const useGameStore = create<GameState>((set, get) => {
 
     clearNotification: () => {
       set({ notification: null })
+    },
+
+    triggerGameOver: (reason: string) => {
+      set({
+        progress: {
+          ...get().progress,
+          currentPhase: 'game-over',
+        },
+        gameOverReason: reason,
+      })
+    },
+
+    retryLevel: () => {
+      const { progress } = get()
+      const updated: PlayerProgress = {
+        ...progress,
+        lives: 3,
+        currentPhase: 'flashcard',
+      }
+      saveProgress(updated)
+      set({
+        progress: updated,
+        selectedChoice: null,
+        selectedSmell: null,
+        showingAnswer: false,
+        gameOverReason: null,
+        codeEditor: {
+          typedAnswers: [],
+          checkingCode: false,
+          codeCorrect: null,
+          usedHint: false,
+        },
+      })
     },
 
     reset: () => {
