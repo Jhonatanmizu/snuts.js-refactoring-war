@@ -1,4 +1,4 @@
-import { Volume2 } from 'lucide-react'
+import { Check, Volume2, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,6 +17,14 @@ export function LevelCompletePhase() {
   const nextRank = getNextRank(progress.xp)
 
   const isComplete = progress.currentLevel >= levels.length - 1
+
+  const currentLevelAnswers = progress.answerHistory.filter((r) => r.levelIndex === progress.currentLevel)
+
+  const phaseName: Record<string, string> = {
+    'spot-smell': 'Spot the Smell',
+    'refactoring-ref': 'The Refactoring Ref',
+    'code-editor': 'Code Editor',
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-snuts-bg p-8 relative">
@@ -81,6 +89,33 @@ export function LevelCompletePhase() {
                     <span className="text-snuts-muted font-ui text-xs">Best Streak</span>
                   </div>
                 </div>
+
+                {progress.answerHistory.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    <span className="text-snuts-muted font-ui text-xs font-semibold uppercase">Full Review</span>
+                    <div className="flex flex-col gap-1.5">
+                      {levels.map((l, li) => {
+                        const levelAnswers = progress.answerHistory.filter((r) => r.levelIndex === li)
+                        if (levelAnswers.length === 0) return null
+                        const correct = levelAnswers.filter((r) => r.correct).length
+                        return (
+                          <div
+                            key={l.id}
+                            className="flex items-center gap-3 rounded-lg border border-snuts-border bg-snuts-code px-3 py-2"
+                          >
+                            <span className="text-snuts-muted font-code text-xs w-6">
+                              {String(li + 1).padStart(2, '0')}
+                            </span>
+                            <span className="text-snuts-text font-ui text-xs flex-1">{l.name}</span>
+                            <span className="text-snuts-green font-code text-xs font-semibold">
+                              {correct}/{levelAnswers.length}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {progress.unlockedBadges.length > 0 && (
                   <div className="flex flex-col gap-2">
@@ -164,17 +199,55 @@ export function LevelCompletePhase() {
                   </div>
                 </div>
 
+                {currentLevelAnswers.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    <span className="text-snuts-muted font-ui text-xs font-semibold uppercase">Answer Review</span>
+                    <div className="flex flex-col gap-1.5">
+                      {currentLevelAnswers.map((r) => (
+                        <div
+                          key={`${r.phase}-${r.levelIndex}`}
+                          className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${
+                            r.correct ? 'border-snuts-green/30 bg-snuts-green/5' : 'border-snuts-red/30 bg-snuts-red/5'
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                              r.correct ? 'bg-snuts-green/20 text-snuts-green' : 'bg-snuts-red/20 text-snuts-red'
+                            }`}
+                          >
+                            {r.correct ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                          </div>
+                          <span className="text-snuts-text font-ui text-xs flex-1">
+                            {phaseName[r.phase] || r.phase}
+                          </span>
+                          <span
+                            className={`font-code text-xs font-semibold ${r.correct ? 'text-snuts-green' : 'text-snuts-red'}`}
+                          >
+                            {r.correct ? `+${r.xp} XP` : '0 XP'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {progress.unlockedBadges.length > 0 && (
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {progress.unlockedBadges.map((badgeId) => (
-                      <Badge key={badgeId} className="bg-snuts-surface border-snuts-purple text-snuts-purple font-code">
-                        {badgeId === 'smell-detector'
-                          ? '🔍 Smell Detector'
-                          : badgeId === 'garbage-collector'
-                            ? '♻️ Garbage Collector'
-                            : '🛡️ CI/CD Guardian'}
-                      </Badge>
-                    ))}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-snuts-muted font-ui text-xs font-semibold uppercase">Badges Earned</span>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {progress.unlockedBadges.map((badgeId) => (
+                        <Badge
+                          key={badgeId}
+                          className="bg-snuts-surface border-snuts-purple text-snuts-purple font-code"
+                        >
+                          {badgeId === 'smell-detector'
+                            ? '🔍 Smell Detector'
+                            : badgeId === 'garbage-collector'
+                              ? '♻️ Garbage Collector'
+                              : '🛡️ CI/CD Guardian'}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 )}
               </CardContent>

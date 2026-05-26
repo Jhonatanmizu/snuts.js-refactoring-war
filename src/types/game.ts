@@ -1,4 +1,20 @@
-export type GamePhase = 'welcome' | 'flashcard' | 'spot-smell' | 'refactoring-ref' | 'code-editor' | 'level-complete'
+export type GameMode = 'full-game' | 'flashcard-lab'
+
+export type GamePhase =
+  | 'welcome'
+  | 'flashcard'
+  | 'spot-smell'
+  | 'refactoring-ref'
+  | 'code-editor'
+  | 'level-complete'
+  | 'flashcard-lab'
+
+export interface AnswerRecord {
+  phase: 'spot-smell' | 'refactoring-ref' | 'code-editor'
+  levelIndex: number
+  correct: boolean
+  xp: number
+}
 
 export interface Flashcard {
   smellName: string
@@ -84,4 +100,5 @@ export interface PlayerProgress {
   spotSmellCorrect: number
   refactoringCorrect: number
   codeEditorCorrect: number
+  answerHistory: AnswerRecord[]
 }

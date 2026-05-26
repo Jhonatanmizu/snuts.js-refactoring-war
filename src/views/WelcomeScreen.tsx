@@ -1,14 +1,25 @@
+import { ArrowRight, BookOpen, Swords } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { levels } from '@/models/levels'
 import { getNextRank, getRank, getXpProgress } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
+import type { GameMode } from '@/types/game'
 
 export function WelcomeScreen() {
   const startGame = useGameStore((s) => s.startGame)
+  const startFlashcardLab = useGameStore((s) => s.startFlashcardLab)
   const progress = useGameStore((s) => s.progress)
+  const setGameMode = useGameStore((s) => s.setGameMode)
   const hasSavedData = progress.xp > 0 || progress.completedLevels.length > 0
   const rank = getRank(progress.xp)
   const xpProgress = getXpProgress(progress.xp)
   const nextRank = getNextRank(progress.xp)
+  const [selectedMode, setSelectedMode] = useState<GameMode | null>(null)
+
+  const answerCount = progress.answerHistory.length
+  const correctCount = progress.answerHistory.filter((r) => r.correct).length
+  const accuracy = answerCount > 0 ? Math.round((correctCount / answerCount) * 100) : 0
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-snuts-bg p-8">
@@ -50,41 +61,141 @@ export function WelcomeScreen() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3 w-full">
-          <Button
-            onClick={startGame}
-            className="bg-snuts-green text-snuts-code font-semibold hover:bg-snuts-green/90 h-12 text-base"
-          >
-            {hasSavedData ? 'Continue Learning' : 'Start Training'}
-          </Button>
+        {!selectedMode && (
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <button
+              type="button"
+              onClick={() => setSelectedMode('full-game')}
+              className="flex flex-col items-center gap-3 rounded-2xl border-2 border-snuts-border bg-snuts-surface-3 p-6 text-left transition-all hover:border-snuts-cyan hover:bg-snuts-surface-2/50"
+            >
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-snuts-cyan/20">
+                <Swords className="w-6 h-6 text-snuts-cyan" />
+              </div>
+              <span className="text-snuts-text font-ui text-lg font-bold">Full Game</span>
+              <span className="text-snuts-muted font-ui text-xs text-center leading-relaxed">
+                Complete challenges, earn XP, climb ranks
+              </span>
+            </button>
 
-          {hasSavedData && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMode('flashcard-lab')
+                startFlashcardLab()
+              }}
+              className="flex flex-col items-center gap-3 rounded-2xl border-2 border-snuts-border bg-snuts-surface-3 p-6 text-left transition-all hover:border-snuts-accent hover:bg-snuts-surface-2/50"
+            >
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-snuts-accent/20">
+                <BookOpen className="w-6 h-6 text-snuts-accent" />
+              </div>
+              <span className="text-snuts-text font-ui text-lg font-bold">Flashcard Lab</span>
+              <span className="text-snuts-muted font-ui text-xs text-center leading-relaxed">
+                Browse all flashcards, no pressure
+              </span>
+            </button>
+          </div>
+        )}
+
+        {selectedMode === 'full-game' && (
+          <div className="flex flex-col gap-3 w-full animate-fadeIn">
+            {hasSavedData && (
+              <Button
+                onClick={() => {
+                  setGameMode('full-game')
+                  startGame()
+                }}
+                className="bg-snuts-green text-snuts-code font-semibold hover:bg-snuts-green/90 h-12 text-base"
+              >
+                Continue Learning
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+
+            <Button
+              onClick={() => {
+                setGameMode('full-game')
+                useGameStore.getState().reset()
+                useGameStore.getState().startGame()
+              }}
+              variant={hasSavedData ? 'outline' : 'default'}
+              className={`h-12 text-base ${!hasSavedData ? 'bg-snuts-green text-snuts-code font-semibold hover:bg-snuts-green/90' : 'border-snuts-border text-snuts-muted'}`}
+            >
+              New Game
+            </Button>
+
+            <div className="flex flex-col gap-2 w-full">
+              <span className="text-snuts-muted font-ui text-xs font-medium text-left">Level Select</span>
+              <div className="grid grid-cols-3 gap-2">
+                {levels.map((l, i) => {
+                  const completed = progress.completedLevels.includes(l.id)
+                  return (
+                    <button
+                      type="button"
+                      key={l.id}
+                      onClick={() => {
+                        useGameStore.getState().reset()
+                        startGame()
+                        useGameStore.setState((s) => ({
+                          progress: {
+                            ...s.progress,
+                            currentLevel: i,
+                          },
+                        }))
+                      }}
+                      className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-all ${
+                        completed
+                          ? 'border-snuts-green bg-snuts-green/10 text-snuts-green'
+                          : i === progress.currentLevel && progress.currentPhase !== 'welcome'
+                            ? 'border-snuts-cyan bg-snuts-cyan/10 text-snuts-cyan'
+                            : 'border-snuts-border bg-snuts-surface-3 text-snuts-muted hover:border-snuts-cyan'
+                      }`}
+                    >
+                      <span className="text-xs font-bold">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="font-ui text-[10px] leading-tight text-center">{l.name}</span>
+                      {completed && <span className="text-xs">✅</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             <Button
               variant="ghost"
-              onClick={() => useGameStore.getState().reset()}
+              onClick={() => setSelectedMode(null)}
               className="text-snuts-muted hover:text-snuts-text"
             >
-              Reset Progress
+              Back
             </Button>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="grid grid-cols-3 gap-4 w-full">
+        <div className="grid grid-cols-4 gap-3 w-full">
           {[
-            { label: 'Test Smells', value: '3', icon: '🔍' },
+            { label: 'Test Smells', value: `${levels.length}`, icon: '🔍' },
             { label: 'XP Earned', value: `${progress.xp}`, icon: '⭐' },
-            { label: 'Completed', value: `${progress.completedLevels.length}/3`, icon: '✅' },
+            { label: 'Accuracy', value: answerCount > 0 ? `${accuracy}%` : '--', icon: '🎯' },
+            { label: 'Completed', value: `${progress.completedLevels.length}/${levels.length}`, icon: '✅' },
           ].map((stat) => (
             <div
               key={stat.label}
-              className="flex flex-col items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border p-4"
+              className="flex flex-col items-center gap-1.5 rounded-xl bg-snuts-surface-3 border border-snuts-border p-3"
             >
-              <span className="text-xl">{stat.icon}</span>
-              <span className="text-snuts-cyan font-code text-lg font-bold">{stat.value}</span>
-              <span className="text-snuts-muted font-ui text-xs">{stat.label}</span>
+              <span className="text-lg">{stat.icon}</span>
+              <span className="text-snuts-cyan font-code text-base font-bold">{stat.value}</span>
+              <span className="text-snuts-muted font-ui text-[10px]">{stat.label}</span>
             </div>
           ))}
         </div>
+
+        {hasSavedData && !selectedMode && (
+          <Button
+            variant="ghost"
+            onClick={() => useGameStore.getState().reset()}
+            className="text-snuts-muted hover:text-snuts-text"
+          >
+            Reset Progress
+          </Button>
+        )}
       </div>
     </div>
   )

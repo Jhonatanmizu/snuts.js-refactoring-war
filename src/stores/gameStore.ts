@@ -12,7 +12,7 @@ function initAudio() {
   } catch {}
 }
 
-import type { PlayerProgress } from '@/types/game'
+import type { AnswerRecord, GameMode, PlayerProgress } from '@/types/game'
 
 const STORAGE_KEY = 'snutsjs-game-progress'
 
@@ -39,6 +39,7 @@ function defaultProgress(): PlayerProgress {
     spotSmellCorrect: 0,
     refactoringCorrect: 0,
     codeEditorCorrect: 0,
+    answerHistory: [],
   }
 }
 
@@ -74,8 +75,13 @@ interface GameState {
   codeEditor: CodeEditorState
   soundEnabled: boolean
   notification: string | null
+  gameMode: GameMode
+  currentLabCard: number
 
+  setGameMode: (mode: GameMode) => void
   startGame: () => void
+  startFlashcardLab: () => void
+  setLabCard: (index: number) => void
   completeFlashcard: () => void
   selectSmell: (id: string) => void
   submitSmellAnswer: () => void
@@ -114,6 +120,12 @@ export const useGameStore = create<GameState>((set, get) => {
     codeEditor: { ...defaultCodeEditor },
     soundEnabled: true,
     notification: null,
+    gameMode: 'full-game',
+    currentLabCard: 0,
+
+    setGameMode: (mode: GameMode) => {
+      set({ gameMode: mode })
+    },
 
     startGame: () => {
       initAudio()
@@ -124,6 +136,22 @@ export const useGameStore = create<GameState>((set, get) => {
       }
       saveProgress(updated)
       set({ progress: updated })
+    },
+
+    startFlashcardLab: () => {
+      initAudio()
+      set({
+        progress: {
+          ...get().progress,
+          currentPhase: 'flashcard-lab',
+        },
+        currentLabCard: 0,
+        currentSmellTab: 'smelly',
+      })
+    },
+
+    setLabCard: (index: number) => {
+      set({ currentLabCard: index })
     },
 
     completeFlashcard: () => {
@@ -148,6 +176,12 @@ export const useGameStore = create<GameState>((set, get) => {
       const option = level.spotSmellChallenge.options.find((o) => o.id === selectedSmell)
       const correct = option?.isCorrect ?? false
       const newLives = correct ? progress.lives : Math.max(0, progress.lives - 1)
+      const record: AnswerRecord = {
+        phase: 'spot-smell',
+        levelIndex: progress.currentLevel,
+        correct,
+        xp: correct ? 100 : 0,
+      }
 
       if (soundEnabled) {
         if (correct) playCorrect()
@@ -160,6 +194,7 @@ export const useGameStore = create<GameState>((set, get) => {
         streak: correct ? progress.streak + 1 : 0,
         lives: newLives,
         spotSmellCorrect: correct ? progress.spotSmellCorrect + 1 : progress.spotSmellCorrect,
+        answerHistory: [...progress.answerHistory, record],
       }
       saveProgress(updated)
 
@@ -207,6 +242,12 @@ export const useGameStore = create<GameState>((set, get) => {
       const baseXp = correct ? (choice?.xpReward ?? 100) : 0
       const earned = Math.round(baseXp * streakMultiplier)
       const newLives = correct ? progress.lives : Math.max(0, progress.lives - 1)
+      const record: AnswerRecord = {
+        phase: 'refactoring-ref',
+        levelIndex: progress.currentLevel,
+        correct,
+        xp: earned,
+      }
 
       if (soundEnabled) {
         if (correct) playCorrect()
@@ -219,6 +260,7 @@ export const useGameStore = create<GameState>((set, get) => {
         streak: correct ? progress.streak + 1 : 0,
         lives: newLives,
         refactoringCorrect: correct ? progress.refactoringCorrect + 1 : progress.refactoringCorrect,
+        answerHistory: [...progress.answerHistory, record],
       }
       saveProgress(updated)
 
@@ -285,6 +327,12 @@ export const useGameStore = create<GameState>((set, get) => {
       const streakMultiplier = progress.streak >= 3 ? 1.5 : 1
       const totalXp = Math.round(earned * streakMultiplier)
       const newLives = allCorrect ? progress.lives : Math.max(0, progress.lives - 1)
+      const record: AnswerRecord = {
+        phase: 'code-editor',
+        levelIndex: progress.currentLevel,
+        correct: allCorrect,
+        xp: totalXp,
+      }
 
       const updated: PlayerProgress = {
         ...progress,
@@ -292,6 +340,7 @@ export const useGameStore = create<GameState>((set, get) => {
         streak: allCorrect ? progress.streak + 1 : 0,
         lives: newLives,
         codeEditorCorrect: allCorrect ? progress.codeEditorCorrect + 1 : progress.codeEditorCorrect,
+        answerHistory: [...progress.answerHistory, record],
       }
       saveProgress(updated)
 

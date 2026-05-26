@@ -1,5 +1,6 @@
 import { useGameStore } from '@/stores/gameStore'
 import { CodeEditorPhase } from '@/views/CodeEditorPhase'
+import { FlashcardLabPhase } from '@/views/FlashcardLabPhase'
 import { FlashcardPhase } from '@/views/FlashcardPhase'
 import { LevelCompletePhase } from '@/views/LevelCompletePhase'
 import { RefactoringPhase } from '@/views/RefactoringPhase'
@@ -22,6 +23,8 @@ function App() {
       return <CodeEditorPhase />
     case 'level-complete':
       return <LevelCompletePhase />
+    case 'flashcard-lab':
+      return <FlashcardLabPhase />
     default:
       return <WelcomeScreen />
   }
