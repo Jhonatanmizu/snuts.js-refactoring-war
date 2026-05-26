@@ -1,0 +1,110 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-snuts-bg: #282a36;
+  --color-snuts-text: #f8f8f2;
+  --color-snuts-accent: #ff79c6;
+  --color-snuts-cyan: #8be9fd;
+  --color-snuts-purple: #bd93f9;
+  --color-snuts-green: #50fa7b;
+  --color-snuts-orange: #ffb86c;
+  --color-snuts-yellow: #f1fa8c;
+  --color-snuts-red: #ff5555;
+  --color-snuts-muted: #6272a4;
+  --color-snuts-surface: #44475a44;
+  --color-snuts-surface-2: #44475a88;
+  --color-snuts-surface-3: #191a21cc;
+  --color-snuts-chip: #44475a99;
+  --color-snuts-code: #191a21;
+  --color-snuts-border: #44475a66;
+  --color-snuts-overlay: #282a36cc;
+  --color-snuts-xp: #bd93f9;
+  --color-snuts-pink: #ff79c6;
+  --color-snuts-success: #50fa7b;
+  --color-snuts-warning: #f1fa8c;
+  --color-snuts-destructive: #ff5555;
+
+  --font-ui: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-code: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-snuts-bg text-snuts-text font-ui;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes xpFloat {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(139, 233, 253, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(139, 233, 253, 0.6); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out;
+}
+
+.animate-xpFloat {
+  animation: xpFloat 1.2s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,119 @@
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { levels } from '@/models/levels'
+import { useGameStore } from '@/stores/gameStore'
+
+export function FlashcardPhase() {
+  const progress = useGameStore((s) => s.progress)
+  const currentSmellTab = useGameStore((s) => s.currentSmellTab)
+  const completeFlashcard = useGameStore((s) => s.completeFlashcard)
+  const toggleCodeTab = useGameStore((s) => s.toggleCodeTab)
+
+  const level = levels[progress.currentLevel]
+  const card = level.flashcard
+
+  return (
+    <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
+      <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center w-[46px] h-[46px] rounded-lg bg-snuts-surface-2 border border-snuts-cyan">
+          <span className="text-snuts-cyan font-code text-xl font-bold">S.</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-snuts-text font-ui text-xl font-bold">SNUTS.js</span>
+          <span className="text-snuts-muted font-ui text-sm">
+            Learn Phase: {level.name}
+          </span>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-snuts-muted font-ui text-xs font-medium">
+            Level {progress.currentLevel + 1} of {levels.length}
+          </span>
+          <div className="flex gap-1">
+            {levels.map((_, i) => (
+              <div
+                key={i}
+                className={`w-2 h-2 rounded-full ${
+                  i < progress.currentLevel
+                    ? 'bg-snuts-green'
+                    : i === progress.currentLevel
+                      ? 'bg-snuts-cyan'
+                      : 'bg-snuts-surface-2'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-6 flex-1 min-h-0">
+        <div className="flex-1 flex flex-col gap-4">
+          <Card className="border-snuts-border bg-snuts-surface-3">
+            <CardContent className="p-6 flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-snuts-cyan text-lg">📖</span>
+                <h2 className="text-snuts-text font-ui text-xl font-bold">
+                  {card.smellName}
+                </h2>
+              </div>
+              <p className="text-snuts-muted font-ui text-sm leading-relaxed">
+                {card.description}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-snuts-border bg-snuts-surface-3 flex-1 flex flex-col">
+            <CardContent className="p-4 flex flex-col gap-4 flex-1">
+              <div className="flex gap-[6px] p-1 rounded-xl bg-snuts-code border border-snuts-border">
+                <button
+                  onClick={() => toggleCodeTab('smelly')}
+                  className={`flex items-center gap-2 flex-1 rounded-xl px-3 py-[10px] text-sm font-semibold transition-colors ${
+                    currentSmellTab === 'smelly'
+                      ? 'bg-snuts-surface-2 border border-snuts-red text-snuts-red'
+                      : 'text-snuts-muted'
+                  }`}
+                >
+                  <span className="text-sm">🐛</span>
+                  Smelly Code
+                </button>
+                <button
+                  onClick={() => toggleCodeTab('fix')}
+                  className={`flex items-center gap-2 flex-1 rounded-xl px-3 py-[10px] text-sm font-semibold transition-colors ${
+                    currentSmellTab === 'fix'
+                      ? 'bg-snuts-surface-2 border border-snuts-green text-snuts-green'
+                      : 'text-snuts-muted'
+                  }`}
+                >
+                  <span className="text-sm">✅</span>
+                  The Fix
+                </button>
+              </div>
+
+              <div className="flex-1 relative">
+                <div className="absolute inset-0 rounded-xl bg-snuts-code border border-snuts-border overflow-hidden">
+                  <div className="flex items-center gap-3 px-4 py-2 bg-snuts-surface-3 border-b border-snuts-border">
+                    <span className="text-snuts-muted font-code text-xs">{card.fileName}</span>
+                    <span className="text-snuts-cyan font-code text-xs">{card.language}</span>
+                  </div>
+                  <pre className="p-4 text-sm font-code leading-relaxed text-snuts-text overflow-auto h-[calc(100%-40px)]">
+                    <code>
+                      {currentSmellTab === 'smelly' ? card.smellyCode : card.fixCode}
+                    </code>
+                  </pre>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end rounded-xl border border-snuts-border bg-snuts-surface-3 px-[18px] py-[14px]">
+        <Button
+          onClick={completeFlashcard}
+          className="bg-snuts-cyan text-snuts-code font-semibold hover:bg-snuts-cyan/90"
+        >
+          Got it — Let's Practice →
+        </Button>
+      </div>
+    </div>
+  )
+}
