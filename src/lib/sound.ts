@@ -21,7 +21,7 @@ export function playCorrect() {
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4)
     osc.start(ctx.currentTime)
     osc.stop(ctx.currentTime + 0.4)
-  } catch { }
+  } catch {}
 }
 
 export function playWrong() {
@@ -38,7 +38,7 @@ export function playWrong() {
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4)
     osc.start(ctx.currentTime)
     osc.stop(ctx.currentTime + 0.4)
-  } catch { }
+  } catch {}
 }
 
 export function playLevelUp() {
@@ -56,7 +56,7 @@ export function playLevelUp() {
       osc.start(ctx.currentTime + i * 0.12)
       osc.stop(ctx.currentTime + i * 0.12 + 0.3)
     })
-  } catch { }
+  } catch {}
 }
 
 export function playType() {
@@ -69,7 +69,7 @@ export function playType() {
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05)
     osc.start(ctx.currentTime)
     osc.stop(ctx.currentTime + 0.05)
-  } catch { }
+  } catch {}
 }
 
 let bgMusicPlaying = false
@@ -87,14 +87,14 @@ export function startBgMusic() {
     function playLoop() {
       if (!bgMusicPlaying) return
       const now = ctx.currentTime
-      const notes = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23]
+      const notes = [261.63, 329.63, 392.0, 329.63, 293.66, 349.23, 440.0, 349.23]
       const noteLen = 0.5
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator()
         const noteGain = ctx.createGain()
         osc.type = 'sine'
         osc.connect(noteGain)
-        noteGain.connect(bgMusicGain!)
+        if (bgMusicGain) noteGain.connect(bgMusicGain)
         noteGain.gain.setValueAtTime(0.06, now + i * noteLen)
         noteGain.gain.exponentialRampToValueAtTime(0.01, now + i * noteLen + noteLen * 0.9)
         osc.frequency.setValueAtTime(freq, now + i * noteLen)
@@ -104,7 +104,7 @@ export function startBgMusic() {
       setTimeout(playLoop, notes.length * noteLen * 1000)
     }
     playLoop()
-  } catch { }
+  } catch {}
 }
 
 export function stopBgMusic() {

@@ -141,6 +141,25 @@
     "@babel/helper-string-parser" "^7.29.7"
     "@babel/helper-validator-identifier" "^7.29.7"
 
+"@biomejs/biome@^2.4.15":
+  version "2.4.15"
+  resolved "https://registry.npmjs.org/@biomejs/biome/-/biome-2.4.15.tgz"
+  integrity sha512-j5VH3a/h/HXTKBM50MDMxRCzkeLv9S2XJcW2WgnZT1+xyisi+0bISrXR82gCX+8S9lvK0skEvHJRN+3Ktr2hlw==
+  optionalDependencies:
+    "@biomejs/cli-darwin-arm64" "2.4.15"
+    "@biomejs/cli-darwin-x64" "2.4.15"
+    "@biomejs/cli-linux-arm64" "2.4.15"
+    "@biomejs/cli-linux-arm64-musl" "2.4.15"
+    "@biomejs/cli-linux-x64" "2.4.15"
+    "@biomejs/cli-linux-x64-musl" "2.4.15"
+    "@biomejs/cli-win32-arm64" "2.4.15"
+    "@biomejs/cli-win32-x64" "2.4.15"
+
+"@biomejs/cli-linux-x64@2.4.15":
+  version "2.4.15"
+  resolved "https://registry.npmjs.org/@biomejs/cli-linux-x64/-/cli-linux-x64-2.4.15.tgz"
+  integrity sha512-0jj7THz12GbUOLmMibktK6DZjqz2zV64KFxyBtcFTKPiiOIY0a7vns1elpO1dERvxpsZ5ik0oFfz0oGwFde1+g==
+
 "@emnapi/core@^1.7.1":
   version "1.10.0"
   resolved "https://registry.npmjs.org/@emnapi/core/-/core-1.10.0.tgz"
@@ -1083,6 +1102,11 @@ prism-code-editor@^5.1.0:
   version "5.1.0"
   resolved "https://registry.npmjs.org/prism-code-editor/-/prism-code-editor-5.1.0.tgz"
   integrity sha512-f88t0IFxdHouB9GxpoGWVD4hV68VvCoP2R3XVkKDB0UTQN1cFoT8u20j69M4KUj94FaarR40tQgOzO9VXjRv3w==
+
+prismjs@^1.30.0:
+  version "1.30.0"
+  resolved "https://registry.npmjs.org/prismjs/-/prismjs-1.30.0.tgz"
+  integrity sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw==
 
 punycode@^2.1.0:
   version "2.3.1"

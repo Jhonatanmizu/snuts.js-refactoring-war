@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react'
+import {
+  ArrowRight,
+  CheckCircle2,
+  FileCode,
+  Flame,
+  Heart,
+  Lightbulb,
+  Play,
+  Sparkles,
+  Timer,
+  Volume2,
+  XCircle,
+} from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { CodeEditor, SyntaxHighlightedCode } from '@/components/CodeEditor'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { CodeEditor, SyntaxHighlightedCode } from '@/components/CodeEditor'
 import { levels } from '@/models/levels'
 import { getRank, getXpProgress } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
-import {
-  Flame,
-  Heart,
-  Timer,
-  Volume2,
-  Lightbulb,
-  CheckCircle2,
-  XCircle,
-  Sparkles,
-  Play,
-  FileCode,
-  ArrowRight,
-} from 'lucide-react'
 
 const TIMER_SECONDS = 150
 
@@ -44,14 +44,14 @@ export function CodeEditorPhase() {
 
   const allFilled = challenge.blanks.every((_, i) => (codeEditor.typedAnswers[i]?.trim() ?? '') !== '')
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     submitCodeEditorAnswer()
     if (allFilled) {
       const id = Math.random()
       setXpFloat((prev) => [...prev, { id, text: '+200 XP', x: 920, y: 80 }])
       setTimeout(() => setXpFloat((prev) => prev.filter((f) => f.id !== id)), 1500)
     }
-  }
+  }, [allFilled, submitCodeEditorAnswer])
 
   useEffect(() => {
     if (codeEditor.codeCorrect !== null) return
@@ -60,7 +60,7 @@ export function CodeEditorPhase() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [codeEditor.codeCorrect, allFilled])
+  }, [codeEditor.codeCorrect, allFilled, handleSubmit])
 
   useEffect(() => {
     if (codeEditor.codeCorrect !== null) return
@@ -75,7 +75,7 @@ export function CodeEditorPhase() {
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [codeEditor.codeCorrect, allFilled])
+  }, [codeEditor.codeCorrect, allFilled, handleSubmit])
 
   const minutes = Math.floor(timeLeft / 60)
   const seconds = timeLeft % 60
@@ -95,9 +95,7 @@ export function CodeEditorPhase() {
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-snuts-text font-ui text-xl font-bold">SNUTS.js</span>
-          <span className="text-snuts-muted font-ui text-sm">
-            Code Editor — {level.name}
-          </span>
+          <span className="text-snuts-muted font-ui text-sm">Code Editor — {level.name}</span>
         </div>
 
         <div className="ml-auto flex items-center gap-3">
@@ -124,38 +122,45 @@ export function CodeEditorPhase() {
           </div>
 
           <div className="flex items-center gap-1 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
-            <Flame className={`w-4 h-4 ${progress.streak >= 3 ? 'text-snuts-orange animate-pulse' : 'text-snuts-muted'}`} />
-            <span className={`font-ui text-xs font-bold ${progress.streak >= 3 ? 'text-snuts-orange' : 'text-snuts-text'}`}>
+            <Flame
+              className={`w-4 h-4 ${progress.streak >= 3 ? 'text-snuts-orange animate-pulse' : 'text-snuts-muted'}`}
+            />
+            <span
+              className={`font-ui text-xs font-bold ${progress.streak >= 3 ? 'text-snuts-orange' : 'text-snuts-text'}`}
+            >
               {progress.streak}x Combo
             </span>
           </div>
 
-          <div className={`flex items-center gap-1 rounded-xl border px-3 py-2 ${
-            timeLow ? 'bg-snuts-red/20 border-snuts-red' : 'bg-snuts-surface-3 border-snuts-border'
-          }`}>
+          <div
+            className={`flex items-center gap-1 rounded-xl border px-3 py-2 ${
+              timeLow ? 'bg-snuts-red/20 border-snuts-red' : 'bg-snuts-surface-3 border-snuts-border'
+            }`}
+          >
             <Timer className={`w-4 h-4 ${timeLow ? 'text-snuts-red' : 'text-snuts-cyan'}`} />
-            <span className={`font-code text-xs font-bold ${
-              timeLow ? 'text-snuts-red animate-pulse' : 'text-snuts-text'
-            }`}>
+            <span
+              className={`font-code text-xs font-bold ${timeLow ? 'text-snuts-red animate-pulse' : 'text-snuts-text'}`}
+            >
               {timeStr}
             </span>
           </div>
 
-          <div className={`flex items-center gap-1 rounded-xl border px-3 py-2 ${
-            lives <= 1 ? 'bg-snuts-red/20 border-snuts-red animate-pulse' : 'bg-snuts-surface-3 border-snuts-border'
-          }`}>
+          <div
+            className={`flex items-center gap-1 rounded-xl border px-3 py-2 ${
+              lives <= 1 ? 'bg-snuts-red/20 border-snuts-red animate-pulse' : 'bg-snuts-surface-3 border-snuts-border'
+            }`}
+          >
             {[0, 1, 2].map((i) => (
               <Heart
                 key={i}
-                className={`w-4 h-4 ${
-                  i < lives ? 'text-snuts-red' : 'text-snuts-muted'
-                }`}
+                className={`w-4 h-4 ${i < lives ? 'text-snuts-red' : 'text-snuts-muted'}`}
                 fill={i < lives ? 'currentColor' : 'none'}
               />
             ))}
           </div>
 
           <button
+            type="button"
             onClick={toggleSound}
             className={`flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
               soundEnabled
@@ -174,12 +179,12 @@ export function CodeEditorPhase() {
           <Card className="border-snuts-border bg-snuts-surface-3 flex-1 flex flex-col">
             <CardContent className="p-4 flex flex-col gap-3 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-snuts-cyan"><FileCode className="w-4 h-4" /></span>
+                <span className="text-snuts-cyan">
+                  <FileCode className="w-4 h-4" />
+                </span>
                 <span className="text-snuts-text font-ui text-sm font-semibold">Objective</span>
               </div>
-              <p className="text-snuts-muted font-ui text-xs leading-relaxed">
-                {challenge.objective}
-              </p>
+              <p className="text-snuts-muted font-ui text-xs leading-relaxed">{challenge.objective}</p>
 
               <div className="flex-1 min-h-0">
                 {showFix ? (
@@ -191,6 +196,7 @@ export function CodeEditorPhase() {
 
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => setShowFix(false)}
                   className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
                     !showFix
@@ -201,6 +207,7 @@ export function CodeEditorPhase() {
                   🐛 Smelly Code
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowFix(true)}
                   className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
                     showFix
@@ -314,7 +321,9 @@ export function CodeEditorPhase() {
               ) : codeEditor.codeCorrect === null ? (
                 <>
                   <span className="text-snuts-muted font-code text-xs">
-                    {allFilled ? 'Ready' : `${challenge.blanks.length - codeEditor.typedAnswers.filter((a) => a.trim()).length} blank(s) remaining`}
+                    {allFilled
+                      ? 'Ready'
+                      : `${challenge.blanks.length - codeEditor.typedAnswers.filter((a) => a.trim()).length} blank(s) remaining`}
                   </span>
                   <Button
                     onClick={handleSubmit}

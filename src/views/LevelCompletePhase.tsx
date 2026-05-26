@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { levels } from '@/models/levels'
-import { getRank, getXpProgress, getNextRank } from '@/models/ranks'
+import { getNextRank, getRank, getXpProgress } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
 
 export function LevelCompletePhase() {
@@ -21,6 +21,7 @@ export function LevelCompletePhase() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-snuts-bg p-8 relative">
       <button
+        type="button"
         onClick={toggleSound}
         className={`absolute top-4 right-4 flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
           soundEnabled
@@ -39,12 +40,9 @@ export function LevelCompletePhase() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <h1 className="text-snuts-text font-ui text-3xl font-bold">
-                Training Complete!
-              </h1>
+              <h1 className="text-snuts-text font-ui text-3xl font-bold">Training Complete!</h1>
               <p className="text-snuts-muted font-ui text-sm leading-relaxed">
-                You have mastered the 3 essential test smells.
-                Your code reviews will never be the same.
+                You have mastered the 3 essential test smells. Your code reviews will never be the same.
               </p>
             </div>
 
@@ -63,9 +61,7 @@ export function LevelCompletePhase() {
                       />
                     </div>
                   </div>
-                  <span className="text-snuts-text font-code text-xs font-semibold">
-                    {progress.xp} XP
-                  </span>
+                  <span className="text-snuts-text font-code text-xs font-semibold">{progress.xp} XP</span>
                   {nextRank && (
                     <span className="text-snuts-muted font-code text-xs ml-2">
                       Next: {nextRank.icon} {nextRank.title}
@@ -88,9 +84,7 @@ export function LevelCompletePhase() {
 
                 {progress.unlockedBadges.length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <span className="text-snuts-muted font-ui text-xs font-semibold uppercase">
-                      Badges Earned
-                    </span>
+                    <span className="text-snuts-muted font-ui text-xs font-semibold uppercase">Badges Earned</span>
                     <div className="flex flex-wrap gap-2 justify-center">
                       {progress.unlockedBadges.map((badgeId) => (
                         <Badge
@@ -110,10 +104,7 @@ export function LevelCompletePhase() {
               </CardContent>
             </Card>
 
-            <Button
-              onClick={reset}
-              className="bg-snuts-cyan text-snuts-code font-semibold hover:bg-snuts-cyan/90"
-            >
+            <Button onClick={reset} className="bg-snuts-cyan text-snuts-code font-semibold hover:bg-snuts-cyan/90">
               Start Over
             </Button>
           </>
@@ -124,12 +115,8 @@ export function LevelCompletePhase() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <h1 className="text-snuts-text font-ui text-3xl font-bold">
-                Level Complete!
-              </h1>
-              <p className="text-snuts-muted font-ui text-sm">
-                {levels[progress.currentLevel]?.name} — mastered.
-              </p>
+              <h1 className="text-snuts-text font-ui text-3xl font-bold">Level Complete!</h1>
+              <p className="text-snuts-muted font-ui text-sm">{levels[progress.currentLevel]?.name} — mastered.</p>
             </div>
 
             <Card className="border-snuts-border bg-snuts-surface-3 w-full">
@@ -147,9 +134,7 @@ export function LevelCompletePhase() {
                       />
                     </div>
                   </div>
-                  <span className="text-snuts-text font-code text-xs font-semibold">
-                    {progress.xp} XP
-                  </span>
+                  <span className="text-snuts-text font-code text-xs font-semibold">{progress.xp} XP</span>
                   {nextRank && (
                     <span className="text-snuts-muted font-code text-xs ml-2">
                       Next: {nextRank.icon} {nextRank.title}
@@ -182,10 +167,7 @@ export function LevelCompletePhase() {
                 {progress.unlockedBadges.length > 0 && (
                   <div className="flex flex-wrap gap-2 justify-center">
                     {progress.unlockedBadges.map((badgeId) => (
-                      <Badge
-                        key={badgeId}
-                        className="bg-snuts-surface border-snuts-purple text-snuts-purple font-code"
-                      >
+                      <Badge key={badgeId} className="bg-snuts-surface border-snuts-purple text-snuts-purple font-code">
                         {badgeId === 'smell-detector'
                           ? '🔍 Smell Detector'
                           : badgeId === 'garbage-collector'

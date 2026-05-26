@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import Prism from 'prismjs'
+import { useEffect } from 'react'
 import 'prismjs/components/prism-javascript'
 import { Volume2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ export function FlashcardPhase() {
 
   useEffect(() => {
     Prism.highlightAll()
-  }, [currentSmellTab])
+  }, [])
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -33,7 +33,7 @@ export function FlashcardPhase() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [completeFlashcard])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -42,7 +42,11 @@ export function FlashcardPhase() {
           <div className="flex items-center gap-3">
             <span className="text-xl">💀</span>
             <p className="text-snuts-red font-ui text-sm flex-1">{notification}</p>
-            <button onClick={clearNotification} className="text-snuts-muted hover:text-snuts-text text-xs">
+            <button
+              type="button"
+              onClick={clearNotification}
+              className="text-snuts-muted hover:text-snuts-text text-xs"
+            >
               Dismiss
             </button>
           </div>
@@ -55,9 +59,7 @@ export function FlashcardPhase() {
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-snuts-text font-ui text-xl font-bold">SNUTS.js</span>
-          <span className="text-snuts-muted font-ui text-sm">
-            Learn Phase: {level.name}
-          </span>
+          <span className="text-snuts-muted font-ui text-sm">Learn Phase: {level.name}</span>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <div className="flex items-center gap-2 rounded-xl bg-snuts-surface-3 border border-snuts-border px-3 py-2">
@@ -77,6 +79,7 @@ export function FlashcardPhase() {
           </div>
 
           <button
+            type="button"
             onClick={toggleSound}
             className={`flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
               soundEnabled
@@ -92,9 +95,9 @@ export function FlashcardPhase() {
               Level {progress.currentLevel + 1} of {levels.length}
             </span>
             <div className="flex gap-1">
-              {levels.map((_, i) => (
+              {levels.map((l, i) => (
                 <div
-                  key={i}
+                  key={l.name}
                   className={`w-2 h-2 rounded-full ${
                     i < progress.currentLevel
                       ? 'bg-snuts-green'
@@ -115,13 +118,9 @@ export function FlashcardPhase() {
             <CardContent className="p-6 flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-snuts-cyan text-lg">📖</span>
-                <h2 className="text-snuts-text font-ui text-xl font-bold">
-                  {card.smellName}
-                </h2>
+                <h2 className="text-snuts-text font-ui text-xl font-bold">{card.smellName}</h2>
               </div>
-              <p className="text-snuts-muted font-ui text-sm leading-relaxed">
-                {card.description}
-              </p>
+              <p className="text-snuts-muted font-ui text-sm leading-relaxed">{card.description}</p>
             </CardContent>
           </Card>
 
@@ -129,6 +128,7 @@ export function FlashcardPhase() {
             <CardContent className="p-4 flex flex-col gap-4 flex-1">
               <div className="flex gap-[6px] p-1 rounded-xl bg-snuts-code border border-snuts-border">
                 <button
+                  type="button"
                   onClick={() => toggleCodeTab('smelly')}
                   className={`flex items-center gap-2 flex-1 rounded-xl px-3 py-[10px] text-sm font-semibold transition-colors ${
                     currentSmellTab === 'smelly'
@@ -140,6 +140,7 @@ export function FlashcardPhase() {
                   Smelly Code
                 </button>
                 <button
+                  type="button"
                   onClick={() => toggleCodeTab('fix')}
                   className={`flex items-center gap-2 flex-1 rounded-xl px-3 py-[10px] text-sm font-semibold transition-colors ${
                     currentSmellTab === 'fix'

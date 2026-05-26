@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import Prism from 'prismjs'
+import { useCallback, useEffect, useState } from 'react'
 import 'prismjs/components/prism-javascript'
 import { Volume2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -30,17 +30,7 @@ export function SpotSmellPhase() {
     Prism.highlightAll()
   }, [])
 
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Enter' && selectedSmell && !showingAnswer) {
-        handleSubmit()
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [selectedSmell, showingAnswer])
-
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const option = challenge.options.find((o) => o.id === selectedSmell)
     const correct = option?.isCorrect ?? false
     submitSmellAnswer()
@@ -49,7 +39,17 @@ export function SpotSmellPhase() {
       setXpFloat((prev) => [...prev, { id, text: '+100 XP' }])
       setTimeout(() => setXpFloat((prev) => prev.filter((f) => f.id !== id)), 1500)
     }
-  }
+  }, [selectedSmell, submitSmellAnswer, challenge])
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && selectedSmell && !showingAnswer) {
+        handleSubmit()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [selectedSmell, showingAnswer, handleSubmit])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -59,9 +59,7 @@ export function SpotSmellPhase() {
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-snuts-text font-ui text-xl font-bold">SNUTS.js</span>
-          <span className="text-snuts-muted font-ui text-sm">
-            Spot the Smell — {level.name}
-          </span>
+          <span className="text-snuts-muted font-ui text-sm">Spot the Smell — {level.name}</span>
         </div>
 
         <div className="ml-auto flex items-center gap-3">
@@ -82,6 +80,7 @@ export function SpotSmellPhase() {
           </div>
 
           <button
+            type="button"
             onClick={toggleSound}
             className={`flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
               soundEnabled
@@ -137,6 +136,7 @@ export function SpotSmellPhase() {
 
             return (
               <button
+                type="button"
                 key={option.id}
                 onClick={() => !showingAnswer && selectSmell(option.id)}
                 disabled={showingAnswer}
@@ -170,9 +170,7 @@ export function SpotSmellPhase() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-snuts-text font-ui text-sm font-semibold">
-                    {option.smellName}
-                  </span>
+                  <span className="text-snuts-text font-ui text-sm font-semibold">{option.smellName}</span>
                 </div>
               </button>
             )

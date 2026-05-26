@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import Prism from 'prismjs'
+import { useCallback, useEffect, useState } from 'react'
 import 'prismjs/components/prism-javascript'
 import { Volume2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -30,19 +30,9 @@ export function RefactoringPhase() {
 
   useEffect(() => {
     Prism.highlightAll()
-  }, [selectedChoice, showingAnswer])
+  }, [])
 
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Enter' && selectedChoice && !showingAnswer) {
-        handleSubmit()
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [selectedChoice, showingAnswer])
-
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const choice = challenge.choices.find((c) => c.id === selectedChoice)
     const correct = choice?.isCorrect ?? false
     const baseXp = correct ? (choice?.xpReward ?? 100) : 0
@@ -54,7 +44,17 @@ export function RefactoringPhase() {
       setXpFloat((prev) => [...prev, { id, text: `+${earned} XP` }])
       setTimeout(() => setXpFloat((prev) => prev.filter((f) => f.id !== id)), 1500)
     }
-  }
+  }, [selectedChoice, progress.streak, submitRefactoringAnswer, challenge])
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && selectedChoice && !showingAnswer) {
+        handleSubmit()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [selectedChoice, showingAnswer, handleSubmit])
 
   return (
     <div className="flex flex-col gap-6 w-full h-full p-[28px] max-w-[1440px] mx-auto">
@@ -64,9 +64,7 @@ export function RefactoringPhase() {
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-snuts-text font-ui text-xl font-bold">SNUTS.js</span>
-          <span className="text-snuts-muted font-ui text-sm">
-            The Refactoring Ref — {level.name}
-          </span>
+          <span className="text-snuts-muted font-ui text-sm">The Refactoring Ref — {level.name}</span>
         </div>
 
         <div className="ml-auto flex items-center gap-3">
@@ -87,6 +85,7 @@ export function RefactoringPhase() {
           </div>
 
           <button
+            type="button"
             onClick={toggleSound}
             className={`flex items-center gap-1 rounded-xl border px-3 py-2 transition-colors ${
               soundEnabled
@@ -107,9 +106,7 @@ export function RefactoringPhase() {
                 <span className="text-snuts-cyan text-sm">🎯</span>
                 <span className="text-snuts-text font-ui text-sm font-semibold">Objective</span>
               </div>
-              <p className="text-snuts-muted font-ui text-xs leading-relaxed">
-                {challenge.objective}
-              </p>
+              <p className="text-snuts-muted font-ui text-xs leading-relaxed">{challenge.objective}</p>
 
               <div className="flex-1 rounded-xl bg-snuts-code border border-snuts-border overflow-hidden mt-2 min-h-[250px]">
                 <div className="flex items-center gap-3 px-4 py-2 bg-snuts-surface-3 border-b border-snuts-border">
@@ -154,6 +151,7 @@ export function RefactoringPhase() {
 
             return (
               <button
+                type="button"
                 key={choice.id}
                 onClick={() => !showingAnswer && selectRefactoringChoice(choice.id)}
                 className={`flex flex-col rounded-xl border transition-all overflow-hidden ${
@@ -187,12 +185,8 @@ export function RefactoringPhase() {
                     )}
                   </div>
                   <div className="flex flex-col gap-1 text-left flex-1">
-                    <span className="text-snuts-text font-ui text-sm font-semibold">
-                      {choice.title}
-                    </span>
-                    <span className="text-snuts-muted font-ui text-xs">
-                      {choice.description}
-                    </span>
+                    <span className="text-snuts-text font-ui text-sm font-semibold">{choice.title}</span>
+                    <span className="text-snuts-muted font-ui text-xs">{choice.description}</span>
                   </div>
                   <Badge
                     variant="secondary"
@@ -234,9 +228,7 @@ export function RefactoringPhase() {
           )}
 
           <div className="flex items-center justify-between rounded-xl border border-snuts-border bg-snuts-surface-3 px-[18px] py-[14px] mt-auto">
-            <span className="text-snuts-muted font-code text-xs">
-              Streak: {progress.streak} 🔥
-            </span>
+            <span className="text-snuts-muted font-code text-xs">Streak: {progress.streak} 🔥</span>
             {!showingAnswer ? (
               <Button
                 onClick={handleSubmit}

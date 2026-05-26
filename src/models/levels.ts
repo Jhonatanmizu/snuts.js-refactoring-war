@@ -46,8 +46,7 @@ export const levels: Level[] = [
     expect(result).toBe(true);
   });
 });`,
-      objective:
-        'Replace hidden test fixtures with a refactor that names the collaborator clearly.',
+      objective: 'Replace hidden test fixtures with a refactor that names the collaborator clearly.',
       hints: [
         'Look for the option that gives the test data a name and a clear origin.',
         'A builder function reveals intent better than a literal object.',
@@ -57,8 +56,7 @@ export const levels: Level[] = [
         {
           id: 'mg-refactor-1',
           title: 'Extract a named guest builder',
-          description:
-            'Create a factory function that makes the test intention clear.',
+          description: 'Create a factory function that makes the test intention clear.',
           code: `function createGuest(name = 'Alice', email?: string) {
   return {
     name,
@@ -72,15 +70,13 @@ test('sends a thank-you note', () => {
   expect(mailer.sendThankYou(guest)).toBe(true);
 });`,
           isCorrect: true,
-          explanation:
-            'Named builders reveal the domain concept and keep tests expressive.',
+          explanation: 'Named builders reveal the domain concept and keep tests expressive.',
           xpReward: 150,
         },
         {
           id: 'mg-refactor-2',
           title: 'Add more assertions to the same test',
-          description:
-            'Double down by checking more properties in one test block.',
+          description: 'Double down by checking more properties in one test block.',
           code: `test('sends a thank-you note', () => {
   const guest = { name: 'Alice', email: 'alice@test.com' };
   const mailer = new Mailer();
@@ -90,8 +86,7 @@ test('sends a thank-you note', () => {
   expect(mailer.template).toBe('thank-you');
 });`,
           isCorrect: false,
-          explanation:
-            'More assertions only mask the problem; the hidden setup still triggers the smell detector.',
+          explanation: 'More assertions only mask the problem; the hidden setup still triggers the smell detector.',
           xpReward: 0,
         },
       ],
@@ -185,8 +180,7 @@ test('should deactivate user account', async () => {
   const deactivated = await deactivateUser(1);
   expect(deactivated.isActive).toBe(false);
 });`,
-      objective:
-        'Split independent behaviors into distinct, focused test blocks.',
+      objective: 'Split independent behaviors into distinct, focused test blocks.',
       hints: [
         'Each test should verify one behavior or concept.',
         'If a test name uses "and" or "&", it is likely doing too much.',
@@ -196,8 +190,7 @@ test('should deactivate user account', async () => {
         {
           id: 'et-refactor-1',
           title: 'Split into focused tests',
-          description:
-            'Each independent behavior gets its own test block.',
+          description: 'Each independent behavior gets its own test block.',
           code: `test('should update user profile details', async () => {
   const user = await updateProfile(1, { name: 'Alice' });
   expect(user.name).toBe('Alice');
@@ -208,15 +201,13 @@ test('should deactivate user account', async () => {
   expect(deactivated.isActive).toBe(false);
 });`,
           isCorrect: true,
-          explanation:
-            'Each test now verifies exactly one behavior. A failure pinpoints the issue instantly.',
+          explanation: 'Each test now verifies exactly one behavior. A failure pinpoints the issue instantly.',
           xpReward: 150,
         },
         {
           id: 'et-refactor-2',
           title: 'Merge into one big test',
-          description:
-            'Keep everything together but add more comments.',
+          description: 'Keep everything together but add more comments.',
           code: `test('user profile management feature', async () => {
   // Step 1: Update profile
   const user = await updateProfile(1, { name: 'Alice' });
@@ -229,8 +220,7 @@ test('should deactivate user account', async () => {
   // TODO: Add reactivate test here
 });`,
           isCorrect: false,
-          explanation:
-            'Comments do not fix the problem. The test still checks two independent behaviors.',
+          explanation: 'Comments do not fix the problem. The test still checks two independent behaviors.',
           xpReward: 0,
         },
       ],
@@ -315,8 +305,7 @@ test('should deactivate user account', async () => {
   const invoiceNo = \`INV-\${today.getFullYear()}-\${Math.random()}\`;
   expect(invoiceNo).toMatch(/^INV-/);
 });`,
-      objective:
-        'Eliminate non-determinism by controlling the date and using a proper unique ID.',
+      objective: 'Eliminate non-determinism by controlling the date and using a proper unique ID.',
       hints: [
         'Floating dates make tests non-deterministic across environments.',
         'Math.random() cannot be reliably tested. Use a seeded or mockable alternative.',
@@ -326,23 +315,20 @@ test('should deactivate user account', async () => {
         {
           id: 'lh-refactor-1',
           title: 'Control the date and use a proper UUID',
-          description:
-            'Pin the date so the test produces the same result everywhere.',
+          description: 'Pin the date so the test produces the same result everywhere.',
           code: `test('should generate invoice number', () => {
   const today = new Date('2025-06-01T12:00:00Z');
   const invoiceNo = \`INV-\${today.getFullYear()}-\${crypto.randomUUID()}\`;
   expect(invoiceNo).toMatch(/^INV-2025-/);
 });`,
           isCorrect: true,
-          explanation:
-            'A fixed date makes the test deterministic. crypto.randomUUID() produces a valid, testable ID.',
+          explanation: 'A fixed date makes the test deterministic. crypto.randomUUID() produces a valid, testable ID.',
           xpReward: 150,
         },
         {
           id: 'lh-refactor-2',
           title: 'Mock the Date constructor globally',
-          description:
-            'Use jest.useFakeTimers to freeze time.',
+          description: 'Use jest.useFakeTimers to freeze time.',
           code: `beforeAll(() => {
   jest.useFakeTimers();
   jest.setSystemTime(new Date('2025-06-01'));
@@ -377,13 +363,12 @@ test('should generate invoice number', () => {
       codeLines: [
         { text: "test('should generate invoice number', () => {", highlight: 'none' },
         { text: '  const today = ____;', highlight: 'blank' },
+        // biome-ignore lint/suspicious/noTemplateCurlyInString: displays template literal code
         { text: '  const invoiceNo = `INV-${today.getFullYear()}-${crypto.randomUUID()}`;', highlight: 'none' },
-        { text: "  expect(invoiceNo).toMatch(/^INV-2025-/);", highlight: 'none' },
+        { text: '  expect(invoiceNo).toMatch(/^INV-2025-/);', highlight: 'none' },
         { text: '});', highlight: 'none' },
       ],
-      blanks: [
-        { lineIndex: 1, expected: "new Date('2025-06-01T12:00:00Z')" },
-      ],
+      blanks: [{ lineIndex: 1, expected: "new Date('2025-06-01T12:00:00Z')" }],
       hints: [
         'Freeze the date to a specific value so it works everywhere.',
         'Use the Date constructor with a specific ISO string.',

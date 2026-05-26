@@ -1,5 +1,5 @@
 import { Slot } from '@radix-ui/react-slot'
-import { type VariantProps, cva } from 'class-variance-authority'
+import { cva, type VariantProps } from 'class-variance-authority'
 import type * as React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -10,12 +10,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-snuts-text text-snuts-code hover:bg-snuts-text/90',
-        destructive:
-          'bg-snuts-destructive text-white hover:bg-snuts-destructive/90',
-        outline:
-          'border border-snuts-border bg-transparent text-snuts-text hover:bg-snuts-surface',
-        secondary:
-          'bg-snuts-surface text-snuts-text hover:bg-snuts-surface-2',
+        destructive: 'bg-snuts-destructive text-white hover:bg-snuts-destructive/90',
+        outline: 'border border-snuts-border bg-transparent text-snuts-text hover:bg-snuts-surface',
+        secondary: 'bg-snuts-surface text-snuts-text hover:bg-snuts-surface-2',
         ghost: 'text-snuts-text hover:bg-snuts-surface',
         link: 'text-snuts-text underline-offset-4 hover:underline',
       },
@@ -33,27 +30,13 @@ const buttonVariants = cva(
   },
 )
 
-interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 
-function Button({
-  className,
-  variant,
-  size,
-  asChild = false,
-  ...props
-}: ButtonProps) {
+function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
   const Comp = asChild ? Slot : 'button'
-  return (
-    <Comp
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+  return <Comp className={cn(buttonVariants({ variant, size, className }))} {...props} />
 }
 
 export { Button, buttonVariants }
-

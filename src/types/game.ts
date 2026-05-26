@@ -1,10 +1,4 @@
-export type GamePhase =
-  | 'welcome'
-  | 'flashcard'
-  | 'spot-smell'
-  | 'refactoring-ref'
-  | 'code-editor'
-  | 'level-complete'
+export type GamePhase = 'welcome' | 'flashcard' | 'spot-smell' | 'refactoring-ref' | 'code-editor' | 'level-complete'
 
 export interface Flashcard {
   smellName: string

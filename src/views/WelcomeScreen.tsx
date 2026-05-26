@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { getRank, getXpProgress, getNextRank } from '@/models/ranks'
+import { getNextRank, getRank, getXpProgress } from '@/models/ranks'
 import { useGameStore } from '@/stores/gameStore'
 
 export function WelcomeScreen() {
@@ -18,12 +18,10 @@ export function WelcomeScreen() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h1 className="text-snuts-text font-ui text-4xl font-bold">
-            SNUTS.js
-          </h1>
+          <h1 className="text-snuts-text font-ui text-4xl font-bold">SNUTS.js</h1>
           <p className="text-snuts-muted font-ui text-base leading-relaxed">
-            Learn to sniff out test smells and refactor like a senior engineer.
-            Master 3 essential anti-patterns through interactive challenges.
+            Learn to sniff out test smells and refactor like a senior engineer. Master 3 essential anti-patterns through
+            interactive challenges.
           </p>
         </div>
 
@@ -47,9 +45,7 @@ export function WelcomeScreen() {
                   style={{ width: `${xpProgress.percentage}%` }}
                 />
               </div>
-              <span className="text-snuts-text font-code text-xs font-semibold flex-shrink-0">
-                {progress.xp} XP
-              </span>
+              <span className="text-snuts-text font-code text-xs font-semibold flex-shrink-0">{progress.xp} XP</span>
             </div>
           </div>
         )}

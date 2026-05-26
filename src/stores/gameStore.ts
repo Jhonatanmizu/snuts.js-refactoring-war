@@ -1,12 +1,17 @@
 import { create } from 'zustand'
-
+import { playCorrect, playLevelUp, playWrong } from '@/lib/sound'
 import { badgeDefinitions } from '@/models/badges'
 import { levels } from '@/models/levels'
-import { playCorrect, playWrong, playLevelUp } from '@/lib/sound'
+
+const AudioCtx =
+  window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
 
 function initAudio() {
-  try { new (window.AudioContext || (window as any).webkitAudioContext)() } catch {}
+  try {
+    new AudioCtx()
+  } catch {}
 }
+
 import type { PlayerProgress } from '@/types/game'
 
 const STORAGE_KEY = 'snutsjs-game-progress'
@@ -15,7 +20,9 @@ function loadProgress(): PlayerProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw) as PlayerProgress
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return defaultProgress()
 }
 
@@ -38,7 +45,9 @@ function defaultProgress(): PlayerProgress {
 function saveProgress(p: PlayerProgress) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(p))
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 function checkBadges(progress: PlayerProgress): string[] {
